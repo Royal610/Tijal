@@ -22,7 +22,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link to="/" className="flex items-center gap-2">
               <Printer className="h-8 w-8 text-blue-600" />
-              <span className="font-bold text-xl tracking-tight text-slate-900">PrintPro</span>
+              <span className="font-bold text-xl tracking-tight text-slate-900">Viyomkesh Art Vision</span>
             </Link>
           </div>
           

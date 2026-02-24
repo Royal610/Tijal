@@ -6,7 +6,7 @@ export default function About() {
       {/* Header */}
       <div className="bg-slate-900 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-extrabold text-white tracking-tight">About PrintPro</h1>
+          <h1 className="text-4xl font-extrabold text-white tracking-tight">About Viyomkesh Art Vision</h1>
           <p className="mt-4 text-xl text-slate-300 max-w-2xl mx-auto">
             Your trusted partner in professional printing since 2010. We bring your ideas to life with precision and quality.
           </p>
@@ -20,7 +20,7 @@ export default function About() {
             <h2 className="text-3xl font-bold text-slate-900 mb-6">Our Story</h2>
             <div className="space-y-4 text-lg text-slate-600">
               <p>
-                Founded with a vision to revolutionize the local printing industry, PrintPro started as a small shop focusing on visiting cards and ID cards. Over the years, we've grown into a full-service printing hub.
+                Founded with a vision to revolutionize the local printing industry, Viyomkesh Art Vision started as a small shop focusing on visiting cards and ID cards. Over the years, we've grown into a full-service printing hub.
               </p>
               <p>
                 Today, we serve hundreds of businesses, providing everything from digital printing and large format banners to personalized corporate gifts. Our commitment to quality and customer satisfaction remains our driving force.

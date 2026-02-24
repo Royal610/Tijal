@@ -9,7 +9,7 @@ export default function Footer() {
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2 text-white">
               <Printer className="h-8 w-8 text-blue-500" />
-              <span className="font-bold text-xl tracking-tight">PrintPro</span>
+              <span className="font-bold text-xl tracking-tight">Viyomkesh Art Vision</span>
             </Link>
             <p className="text-sm text-slate-400">
               Your trusted partner for all professional printing needs. High quality, fast turnaround, and excellent customer service.
@@ -63,7 +63,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
-          <p>&copy; {new Date().getFullYear()} PrintPro. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Viyomkesh Art Vision. All rights reserved.</p>
           <div className="mt-4 md:mt-0 space-x-4">
             <Link to="/admin" className="hover:text-white transition-colors">Admin Login</Link>
           </div>
