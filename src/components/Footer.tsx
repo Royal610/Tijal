@@ -48,15 +48,15 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-blue-500 shrink-0" />
-                <span>123 Print Avenue, Design District, NY 10001</span>
+                <span>H. No. 176 Near Panchayat Bhawan Najarpur Jamai Chhindwara 480551</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-blue-500 shrink-0" />
-                <span>+1 (555) 123-4567</span>
+                <span>+91 9203700114, 9074900114</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-blue-500 shrink-0" />
-                <span>info@printpro.com</span>
+                <span>Viyomkeshartvision@gmail.com</span>
               </li>
             </ul>
           </div>
