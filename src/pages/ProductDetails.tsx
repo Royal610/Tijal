@@ -36,7 +36,21 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [quantity, setQuantity] = useState(10);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
+  const allImages = Array.from(new Set([
+    product?.image_url,
+    ...variants.map(v => v.image_url)
+  ].filter(Boolean) as string[]));
+
+  useEffect(() => {
+    if (allImages.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentImageIndex(prev => (prev + 1) % allImages.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [allImages.length]);
+
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inquiryStatus, setInquiryStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
@@ -168,94 +182,136 @@ export default function ProductDetails() {
       </div>
 
       {/* Content */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-        <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-            <div className="h-64 md:h-auto min-h-[400px] relative">
-              <img 
-                src={selectedVariant?.image_url || product.image_url} 
-                alt={selectedVariant ? selectedVariant.title : product.title} 
-                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
-                referrerPolicy="no-referrer"
-              />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+        <div className="bg-white rounded-2xl p-6 lg:p-10 shadow-sm border border-slate-200">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+            
+            {/* Left Column: Image Carousel & Variants */}
+            <div className="flex flex-col gap-8">
+              {/* Image Carousel */}
+              <div className="w-full relative h-[300px] sm:h-[400px] lg:h-[500px] rounded-xl overflow-hidden bg-slate-100 group shadow-inner border border-slate-200">
+                {allImages.length > 0 ? allImages.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`Slide ${idx}`}
+                    className={`absolute inset-0 w-full h-full object-contain bg-white transition-opacity duration-700 ${
+                      idx === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                    }`}
+                    referrerPolicy="no-referrer"
+                  />
+                )) : product?.image_url && (
+                  <img 
+                    src={product.image_url} 
+                    alt={product.title} 
+                    className="absolute inset-0 w-full h-full object-contain bg-white"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+                {/* Carousel controls */}
+                {allImages.length > 1 && (
+                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
+                    {allImages.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentImageIndex(idx)}
+                        className={`w-3 h-3 rounded-full transition-all shadow-sm ${
+                          idx === currentImageIndex ? 'bg-blue-600 scale-110' : 'bg-slate-300 hover:bg-slate-400'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Variants underneath image */}
+              {variants.length > 0 && (
+                <div className="border-t border-slate-200 pt-6">
+                  <label className="font-bold text-slate-900 mb-4 block text-lg">Select Option / Category:</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {variants.map((variant) => {
+                      const imgIndex = allImages.indexOf(variant.image_url || product?.image_url || '');
+                      return (
+                        <div 
+                          key={variant.id} 
+                          onClick={() => {
+                            setSelectedVariant(variant);
+                            if (imgIndex !== -1) setCurrentImageIndex(imgIndex);
+                          }}
+                          className={`cursor-pointer rounded-xl overflow-hidden border-2 transition-all ${selectedVariant?.id === variant.id ? 'border-blue-600 shadow-md ring-2 ring-blue-600 ring-opacity-20 bg-blue-50' : 'border-slate-200 hover:border-blue-400 bg-white'}`}
+                        >
+                          <div className="h-24 bg-slate-100 relative">
+                            <img 
+                              src={variant.image_url || product?.image_url} 
+                              alt={variant.title} 
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          </div>
+                          <div className="p-2 text-center flex flex-col justify-between h-20">
+                            <div className="font-semibold text-xs text-slate-900 line-clamp-2" title={variant.title}>{variant.title}</div>
+                            <div className="text-blue-600 font-bold text-sm mt-1">{variant.price}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="p-8 md:p-12 flex flex-col justify-center">
+
+            {/* Right Column: Details & Actions */}
+            <div className="flex flex-col pt-4">
               <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-bold uppercase tracking-wider rounded-full mb-6 w-max">
                 {product.category}
               </span>
-              <h2 className="text-3xl font-bold text-slate-900 mb-6">{selectedVariant ? `${product.title} - ${selectedVariant.title}` : product.title}</h2>
+              <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-6 leading-tight">
+                {selectedVariant ? `${product.title} - ${selectedVariant.title}` : product.title}
+              </h2>
               
               {getDisplayedPrice() && (
-                <div className="text-2xl font-semibold text-blue-600 mb-6">
+                <div className="text-3xl font-semibold text-blue-600 mb-8 bg-blue-50 py-3 px-5 rounded-lg inline-block w-max">
                   {getDisplayedPrice()}
                 </div>
               )}
 
-              <div className="prose prose-slate prose-lg">
+              <div className="prose prose-slate prose-lg max-w-none">
                 <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">
                   {product.description}
                 </p>
               </div>
-              
-              {variants.length > 0 && (
-                <div className="mt-8 border-t border-slate-200 pt-8">
-                  <label className="font-bold text-slate-900 mb-4 block text-lg">Select Option / Category:</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {variants.map((variant) => (
-                      <div 
-                        key={variant.id} 
-                        onClick={() => setSelectedVariant(variant)}
-                        className={`cursor-pointer rounded-xl overflow-hidden border-2 transition-all ${selectedVariant?.id === variant.id ? 'border-blue-600 shadow-md ring-2 ring-blue-600 ring-opacity-20 bg-blue-50/50' : 'border-slate-200 hover:border-blue-400 bg-white'}`}
-                      >
-                        <div className="h-24 bg-slate-100 relative">
-                          <img 
-                            src={variant.image_url || product.image_url} 
-                            alt={variant.title} 
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                        </div>
-                        <div className="p-3 text-center">
-                          <div className="font-semibold text-xs text-slate-900 line-clamp-2 h-8 flex items-center justify-center" title={variant.title}>{variant.title}</div>
-                          <div className="text-blue-600 font-bold mt-1 text-sm">{variant.price}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
-              <div className="mt-8 flex flex-col gap-6">
-                <div className="flex items-center">
-                  <span className="font-bold text-slate-900 mr-4 w-20">Quantity:</span>
-                  <div className="flex items-center border border-slate-300 rounded-lg bg-white shadow-sm">
+              <div className="mt-8 lg:mt-auto border-t border-slate-200 pt-8 flex flex-col gap-6">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <span className="font-bold text-slate-900 w-20">Quantity:</span>
+                  <div className="flex items-center border border-slate-300 rounded-lg bg-white shadow-sm w-max">
                     <button 
                       onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                      className="px-4 py-2 text-slate-600 hover:bg-slate-100 transition-colors rounded-l-lg disabled:opacity-50 border-r border-slate-300"
+                      className="px-4 py-3 text-slate-600 hover:bg-slate-100 transition-colors rounded-l-lg disabled:opacity-50 border-r border-slate-300"
                       disabled={quantity <= 1}
                     >
-                      <Minus className="w-4 h-4" />
+                      <Minus className="w-5 h-5" />
                     </button>
                     <input 
                       type="number" 
                       min="1"
                       value={quantity}
                       onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-16 sm:w-20 text-center py-2 focus:outline-none font-semibold text-slate-900 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-20 text-center py-3 focus:outline-none font-bold text-slate-900 text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <button 
                       onClick={() => setQuantity(q => q + 1)}
-                      className="px-4 py-2 text-slate-600 hover:bg-slate-100 transition-colors rounded-r-lg border-l border-slate-300"
+                      className="px-4 py-3 text-slate-600 hover:bg-slate-100 transition-colors rounded-r-lg border-l border-slate-300"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
 
-                <div className="mt-2">
+                <div className="mt-4">
                   <button 
                     onClick={() => setIsModalOpen(true)}
-                    className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md w-full"
+                    className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md w-full"
                   >
                     Inquire For Bulk Pricing
                   </button>
