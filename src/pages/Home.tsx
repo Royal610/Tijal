@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
@@ -8,118 +7,140 @@ export default function Home() {
   useEffect(() => {
     fetch('/api/services')
       .then(res => res.json())
-      .then(data => setFeaturedServices(data.slice(0, 3)))
+      .then(data => setFeaturedServices(data.slice(0, 4)))
       .catch(err => console.error(err));
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-slate-900 text-white overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://picsum.photos/seed/printing/1920/1080?blur=2" 
-            alt="Printing Press" 
-            className="w-full h-full object-cover opacity-30"
-            referrerPolicy="no-referrer"
-          />
-        </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
-              Professional Printing Solutions for Your Business
-            </h1>
-            <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl">
-              From ID cards and visiting cards to large format digital printing and banners. We deliver high-quality prints with fast turnaround times.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link 
-                to="/services" 
-                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-              >
-                Explore Products
-              </Link>
-              <Link 
-                to="/contact" 
-                className="inline-flex items-center justify-center px-6 py-3 border border-slate-300 text-base font-medium rounded-md text-white bg-transparent hover:bg-slate-800 transition-colors"
-              >
-                Get a Free Quote
-              </Link>
+    <div className="flex flex-col min-h-screen bg-white">
+      {/* Top Hero Banners */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          
+          {/* Left Banner: Business Cards */}
+          <div className="bg-[#EAEAEA] relative overflow-hidden flex min-h-[300px] group rounded-[4px] cursor-pointer" onClick={(e) => { e.preventDefault(); window.location.href='/services'; }}>
+            <div className="absolute inset-y-0 right-0 w-[65%]">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#EAEAEA] via-[#EAEAEA]/85 to-transparent z-10 w-1/2"></div>
+              <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#EAEAEA]/20 to-[#EAEAEA] z-10"></div>
+              <img 
+                src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=800"
+                alt="Business Cards"
+                className="w-full h-full object-cover object-right group-hover:scale-105 transition-transform duration-700"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            
+            <div className="relative z-20 w-full sm:w-[60%] p-8 sm:p-12 pl-8 sm:pl-12 flex flex-col justify-center">
+              <h2 className="text-[32px] font-bold text-slate-900 mb-2 font-sans tracking-tight">Business Cards</h2>
+              <p className="text-slate-800 text-[15px] max-w-[200px] font-medium leading-snug">
+                a perfect first impression with your clients
+              </p>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900">Why Choose Viyomkesh Art Vision?</h2>
-            <p className="mt-4 text-lg text-slate-600">We combine technology with craftsmanship to deliver the best results.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { title: 'Premium Quality', desc: 'We use top-tier materials and advanced printing technology.' },
-              { title: 'Fast Turnaround', desc: 'Quick delivery without compromising on quality.' },
-              { title: 'Competitive Pricing', desc: 'Affordable rates for businesses of all sizes.' }
-            ].map((feature, idx) => (
-              <div key={idx} className="bg-slate-50 p-6 rounded-xl border border-slate-100 flex flex-col items-center text-center">
-                <CheckCircle2 className="h-12 w-12 text-blue-600 mb-4" />
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">{feature.title}</h3>
-                <p className="text-slate-600">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Services */}
-      <section className="py-16 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <h2 className="text-3xl font-bold text-slate-900">Our Popular Products</h2>
-              <p className="mt-4 text-lg text-slate-600">Discover what we do best.</p>
+          {/* Right Banner: ID Cards */}
+          <div className="bg-[#E5E5E5] relative overflow-hidden flex min-h-[300px] group rounded-[4px] cursor-pointer" onClick={(e) => { e.preventDefault(); window.location.href='/services'; }}>
+            <div className="absolute inset-0 w-full h-full">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#E5E5E5] via-[#E5E5E5]/95 to-transparent z-10 w-[70%]"></div>
+              <img 
+                src="https://images.unsplash.com/photo-1598257006458-087169a1f08d?auto=format&fit=crop&q=80&w=1200"
+                alt="ID Cards"
+                className="w-full h-full object-cover object-[50%_20%] absolute right-0 inset-y-0 group-hover:scale-105 transition-transform duration-700"
+                referrerPolicy="no-referrer"
+              />
             </div>
-            <Link to="/services" className="hidden md:flex items-center text-blue-600 font-medium hover:text-blue-700">
-              View All Products <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredServices.map((service) => (
-              <div key={service.id} className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                <img src={service.image_url} alt={service.title} className="w-full h-48 object-cover" referrerPolicy="no-referrer" />
-                <div className="p-6">
-                  <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">{service.category}</span>
-                  <h3 className="mt-2 text-xl font-bold text-slate-900">{service.title}</h3>
-                  <p className="mt-2 text-slate-600 line-clamp-2">{service.description}</p>
-                </div>
+            
+            <div className="relative z-20 w-full sm:w-[70%] p-8 flex flex-col justify-center">
+              <h2 className="text-[28px] sm:text-[30px] font-bold text-slate-900 mb-3 leading-[1.15] font-sans tracking-tight max-w-[300px]">Premium ID Cards For Your Organization</h2>
+              <p className="text-slate-800 text-[13px] mb-6 max-w-[300px] font-medium leading-[1.6]">
+                Professional, durable, and secure ID cards with smart chip, RFID, and standard PVC options. Perfect for employees, events, and education.
+              </p>
+              <div>
+                <Link to="/services" className="inline-block bg-[#F27C21] hover:bg-[#d66b1c] text-white font-semibold py-2 px-6 rounded text-sm transition-colors shadow-sm tracking-wide">
+                  Shop Now
+                </Link>
               </div>
-            ))}
+            </div>
           </div>
-          <div className="mt-8 text-center md:hidden">
-            <Link to="/services" className="inline-flex items-center text-blue-600 font-medium hover:text-blue-700">
-              View All Products <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </div>
+
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-blue-600 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to start your next printing project?</h2>
-          <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
-            Contact us today to discuss your requirements and get a custom quote tailored to your needs.
-          </p>
-          <Link 
-            to="/contact" 
-            className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-md text-blue-600 bg-white hover:bg-blue-50 transition-colors shadow-lg"
-          >
-            Contact Us Now
+      {/* Shop for Your Business Needs */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+        <h2 className="text-[30px] font-bold text-center text-slate-800 mb-10 font-sans tracking-tight">Shop for Your Business Needs</h2>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Link to="/services" className="group flex flex-col h-full cursor-pointer">
+            <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative">
+              <img 
+                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=800" 
+                alt="Education & Campus Needs" 
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <h3 className="text-center font-bold text-slate-800 mt-5 text-[15px] group-hover:text-blue-600 transition-colors">Education & Campus Needs</h3>
+          </Link>
+          
+          <Link to="/services" className="group flex flex-col h-full cursor-pointer">
+            <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative">
+              <img 
+                src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&q=80&w=800" 
+                alt="Startup Branding" 
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <h3 className="text-center font-bold text-slate-800 mt-5 text-[15px] group-hover:text-blue-600 transition-colors">Startup Branding</h3>
+          </Link>
+
+          <Link to="/services" className="group flex flex-col h-full cursor-pointer">
+            <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative">
+              <img 
+                src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=800" 
+                alt="Event and Promotions" 
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <h3 className="text-center font-bold text-slate-800 mt-5 text-[15px] group-hover:text-blue-600 transition-colors">Event and Promotions</h3>
+          </Link>
+
+          <Link to="/services" className="group flex flex-col h-full cursor-pointer">
+            <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative">
+              <img 
+                src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800" 
+                alt="Cafe And Restaurant Essentials" 
+                className="absolute inset-0 w-full h-full object-cover object-bottom group-hover:scale-105 transition-transform duration-500"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <h3 className="text-center font-bold text-slate-800 mt-5 text-[15px] group-hover:text-blue-600 transition-colors">Cafe And Restaurant Essentials</h3>
           </Link>
         </div>
       </section>
+
+      {/* Featured Original Products (Preserving Previous Functionality) */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full mb-10 border-t border-slate-100 mt-8">
+         <h2 className="text-2xl font-bold text-center text-slate-800 mb-8 font-sans tracking-tight">Our Core Printing Services</h2>
+         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {featuredServices.map((service) => (
+              <Link to={`/services/${service.id}`} key={service.id} className="group flex flex-col h-full cursor-pointer">
+                <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative rounded-md">
+                  <img src={service.image_url} alt={service.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerPolicy="no-referrer" />
+                </div>
+                <h3 className="text-center font-semibold text-slate-700 mt-3 text-[14px] group-hover:text-blue-600">{service.title}</h3>
+              </Link>
+            ))}
+         </div>
+         <div className="text-center mt-10">
+            <Link to="/services" className="inline-block bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-8 rounded text-sm transition-colors shadow-sm">
+                View All Products & Services
+            </Link>
+         </div>
+      </section>
+
     </div>
   );
 }
