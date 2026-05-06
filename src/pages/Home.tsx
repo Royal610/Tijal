@@ -66,8 +66,8 @@ export default function Home() {
         <h2 className="text-[30px] font-bold text-center text-slate-800 mb-10 font-sans tracking-tight">Shop for Your Business Needs</h2>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Link to="/services" className="group flex flex-col h-full cursor-pointer">
-            <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative">
+          <div className="group flex flex-col h-full">
+            <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative rounded-[10px]">
               <img 
                 src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=800" 
                 alt="Education & Campus Needs" 
@@ -75,11 +75,11 @@ export default function Home() {
                 referrerPolicy="no-referrer"
               />
             </div>
-            <h3 className="text-center font-bold text-slate-800 mt-5 text-[15px] group-hover:text-blue-600 transition-colors">Education & Campus Needs</h3>
-          </Link>
+            <h3 className="text-center font-bold text-slate-800 mt-5 text-[15px] transition-colors">Education & Campus Needs</h3>
+          </div>
           
-          <Link to="/services" className="group flex flex-col h-full cursor-pointer">
-            <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative">
+          <div className="group flex flex-col h-full">
+            <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative rounded-[10px]">
               <img 
                 src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&q=80&w=800" 
                 alt="Startup Branding" 
@@ -87,11 +87,11 @@ export default function Home() {
                 referrerPolicy="no-referrer"
               />
             </div>
-            <h3 className="text-center font-bold text-slate-800 mt-5 text-[15px] group-hover:text-blue-600 transition-colors">Startup Branding</h3>
-          </Link>
+            <h3 className="text-center font-bold text-slate-800 mt-5 text-[15px] transition-colors">Startup Branding</h3>
+          </div>
 
-          <Link to="/services" className="group flex flex-col h-full cursor-pointer">
-            <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative">
+          <div className="group flex flex-col h-full">
+            <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative rounded-[10px]">
               <img 
                 src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=800" 
                 alt="Event and Promotions" 
@@ -99,20 +99,20 @@ export default function Home() {
                 referrerPolicy="no-referrer"
               />
             </div>
-            <h3 className="text-center font-bold text-slate-800 mt-5 text-[15px] group-hover:text-blue-600 transition-colors">Event and Promotions</h3>
-          </Link>
+            <h3 className="text-center font-bold text-slate-800 mt-5 text-[15px] transition-colors">Event and Promotions</h3>
+          </div>
 
-          <Link to="/services" className="group flex flex-col h-full cursor-pointer">
-            <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative">
+          <div className="group flex flex-col h-full">
+            <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative rounded-[10px]">
               <img 
-                src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800" 
-                alt="Cafe And Restaurant Essentials" 
-                className="absolute inset-0 w-full h-full object-cover object-bottom group-hover:scale-105 transition-transform duration-500"
+                src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=800" 
+                alt="Gifts" 
+                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                 referrerPolicy="no-referrer"
               />
             </div>
-            <h3 className="text-center font-bold text-slate-800 mt-5 text-[15px] group-hover:text-blue-600 transition-colors">Cafe And Restaurant Essentials</h3>
-          </Link>
+            <h3 className="text-center font-bold text-slate-800 mt-5 text-[15px] transition-colors">Gifts</h3>
+          </div>
         </div>
       </section>
 
