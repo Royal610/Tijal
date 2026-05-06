@@ -44,7 +44,7 @@ export default function Services() {
       {/* Header */}
       <div className="bg-slate-900 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-extrabold text-white tracking-tight">Our Products</h1>
+          <h1 className="text-4xl font-extrabold text-[#d5a46d] tracking-tight">Our Products</h1>
           <p className="mt-4 text-xl text-slate-300 max-w-2xl mx-auto">
             Comprehensive bulk printing products tailored to your business needs.
           </p>

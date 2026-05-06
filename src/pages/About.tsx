@@ -6,7 +6,7 @@ export default function About() {
       {/* Header */}
       <div className="bg-slate-900 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-extrabold text-white tracking-tight">About Viyomkesh Art Vision</h1>
+          <h1 className="text-4xl font-extrabold text-[#d5a46d] tracking-tight">About Viyomkesh Art Vision</h1>
           <p className="mt-4 text-xl text-slate-300 max-w-2xl mx-auto">
             Your trusted partner in professional printing since 2010. We bring your ideas to life with precision and quality.
           </p>
