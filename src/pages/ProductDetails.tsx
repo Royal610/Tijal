@@ -355,20 +355,32 @@ export default function ProductDetails() {
       {/* Inquiry Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl relative">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors bg-slate-100 hover:bg-slate-200 p-2 rounded-full"
             >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
             
-            <h3 className="text-2xl font-bold text-slate-900 mb-6">Bulk Inquiry</h3>
-            <p className="text-slate-600 mb-6 flex flex-col gap-1">
-              <span><strong>Product:</strong> {product.title}</span>
-              {selectedVariant && <span><strong>Type:</strong> {selectedVariant.title}</span>}
-              <span><strong>Quantity:</strong> {quantity}</span>
-            </p>
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4 pr-8">Bulk Inquiry</h3>
+            
+            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-6 text-sm text-slate-700 space-y-2">
+              <div className="flex justify-between border-b border-slate-100 pb-2">
+                <span className="font-semibold text-slate-500">Product</span>
+                <span className="font-medium text-slate-900 text-right pl-4">{product.title}</span>
+              </div>
+              {selectedVariant && (
+                <div className="flex justify-between border-b border-slate-100 pb-2">
+                  <span className="font-semibold text-slate-500">Type</span>
+                  <span className="font-medium text-slate-900 text-right pl-4">{selectedVariant.title}</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="font-semibold text-slate-500">Quantity</span>
+                <span className="font-medium text-slate-900">{quantity}</span>
+              </div>
+            </div>
 
             <form onSubmit={submitInquiry} className="space-y-4">
               <div>
@@ -376,37 +388,39 @@ export default function ProductDetails() {
                 <input 
                   type="text" 
                   required 
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                   value={inquiryForm.name}
                   onChange={(e) => setInquiryForm({ ...inquiryForm, name: e.target.value })}
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                <input 
-                  type="email" 
-                  required 
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                  value={inquiryForm.email}
-                  onChange={(e) => setInquiryForm({ ...inquiryForm, email: e.target.value })}
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                  <input 
+                    type="email" 
+                    required 
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                    value={inquiryForm.email}
+                    onChange={(e) => setInquiryForm({ ...inquiryForm, email: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+                  <input 
+                    type="tel" 
+                    required 
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                    value={inquiryForm.phone}
+                    onChange={(e) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
+                  />
+                </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
-                <input 
-                  type="tel" 
-                  required 
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                  value={inquiryForm.phone}
-                  onChange={(e) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Message / Price Negotiation</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Message / Requirements</label>
                 <textarea 
                   required 
                   rows={3}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none transition-colors"
                   value={inquiryForm.message}
                   onChange={(e) => setInquiryForm({ ...inquiryForm, message: e.target.value })}
                   placeholder="Tell us your target price or any specific requirements..."
@@ -416,16 +430,20 @@ export default function ProductDetails() {
               <button 
                 type="submit" 
                 disabled={inquiryStatus === 'submitting'}
-                className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors mt-4"
+                className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors mt-2"
               >
                 {inquiryStatus === 'submitting' ? 'Submitting...' : 'Send Inquiry'}
               </button>
               
               {inquiryStatus === 'success' && (
-                <p className="text-green-600 text-sm text-center">Inquiry sent successfully! We'll get back to you soon.</p>
+                <div className="p-3 bg-green-50 rounded-lg border border-green-100 text-green-700 text-sm text-center">
+                  Inquiry sent successfully! We'll get back to you soon.
+                </div>
               )}
               {inquiryStatus === 'error' && (
-                <p className="text-red-600 text-sm text-center">Failed to send inquiry. Please try again.</p>
+                <div className="p-3 bg-red-50 rounded-lg border border-red-100 text-red-700 text-sm text-center">
+                  Failed to send inquiry. Please try again.
+                </div>
               )}
             </form>
           </div>
