@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Minus, Plus, Star } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Minus, Plus, Star } from 'lucide-react';
 
 interface Service {
   id: number;
@@ -210,19 +210,52 @@ export default function ProductDetails() {
                 )}
                 {/* Carousel controls */}
                 {allImages.length > 1 && (
-                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
-                    {allImages.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setCurrentImageIndex(idx)}
-                        className={`w-3 h-3 rounded-full transition-all shadow-sm ${
-                          idx === currentImageIndex ? 'bg-blue-600 scale-110' : 'bg-slate-300 hover:bg-slate-400'
-                        }`}
-                      />
-                    ))}
-                  </div>
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentImageIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
+                      }}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-slate-800 p-2 sm:p-3 rounded-full shadow-md transition-all z-10 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentImageIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
+                      }}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-slate-800 p-2 sm:p-3 rounded-full shadow-md transition-all z-10 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </button>
+                  </>
                 )}
               </div>
+
+              {/* Thumbnails */}
+              {allImages.length > 1 && (
+                <div className="flex flex-wrap gap-3">
+                  {allImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentImageIndex(idx)}
+                      className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden border-2 transition-all ${
+                        idx === currentImageIndex ? 'border-blue-600 shadow-md ring-2 ring-blue-600 ring-opacity-20' : 'border-slate-200 hover:border-blue-400 opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      <img 
+                        src={img} 
+                        alt={`Thumbnail ${idx + 1}`} 
+                        className="w-full h-full object-cover bg-white" 
+                        referrerPolicy="no-referrer" 
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Variants underneath image */}
               {variants.length > 0 && (
