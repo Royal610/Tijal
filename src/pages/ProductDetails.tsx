@@ -40,7 +40,7 @@ export default function ProductDetails() {
   
   const allImages = Array.from(new Set([
     product?.image_url,
-    ...variants.map(v => v.image_url)
+    ...variants.flatMap(v => (v.image_url || '').split(',').map(u => u.trim()).filter(Boolean))
   ].filter(Boolean) as string[]));
 
   useEffect(() => {
@@ -263,7 +263,9 @@ export default function ProductDetails() {
                   <label className="font-bold text-slate-900 mb-4 block text-lg">Select Option / Category:</label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {variants.map((variant) => {
-                      const imgIndex = allImages.indexOf(variant.image_url || product?.image_url || '');
+                      const variantImages = (variant.image_url || '').split(',').map(u => u.trim()).filter(Boolean);
+                      const displayImg = variantImages[0] || product?.image_url;
+                      const imgIndex = allImages.indexOf(displayImg || '');
                       return (
                         <div 
                           key={variant.id} 
@@ -275,7 +277,7 @@ export default function ProductDetails() {
                         >
                           <div className="h-24 bg-slate-100 relative">
                             <img 
-                              src={variant.image_url || product?.image_url} 
+                              src={displayImg} 
                               alt={variant.title} 
                               className="w-full h-full object-cover"
                               referrerPolicy="no-referrer"

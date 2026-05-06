@@ -66,6 +66,13 @@ async function startServer() {
     res.json({ success: true });
   });
 
+  app.put('/api/services/:id/variants/:variantId', requireAdmin, (req, res) => {
+    const { title, price, image_url } = req.body;
+    const stmt = db.prepare('UPDATE product_variants SET title = ?, price = ?, image_url = ? WHERE id = ? AND service_id = ?');
+    stmt.run(title, price, image_url || '', req.params.variantId, req.params.id);
+    res.json({ success: true });
+  });
+
   // Services API
   app.get('/api/services', (req, res) => {
     const services = db.prepare('SELECT * FROM services ORDER BY id DESC').all();
