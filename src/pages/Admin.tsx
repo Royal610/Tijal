@@ -13,7 +13,7 @@ export default function Admin() {
   const [inquiries, setInquiries] = useState<any[]>([]);
 
   // Form states
-  const [newService, setNewService] = useState({ title: '', description: '', image_url: '', category: '' });
+  const [newService, setNewService] = useState({ title: '', description: '', image_url: '', category: '', price: '' });
   const [newTestimonial, setNewTestimonial] = useState({ client_name: '', content: '', rating: 5 });
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export default function Admin() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newService)
       });
-      setNewService({ title: '', description: '', image_url: '', category: '' });
+      setNewService({ title: '', description: '', image_url: '', category: '', price: '' });
       fetchData();
     } catch (err) {
       console.error(err);
@@ -217,6 +217,7 @@ export default function Admin() {
                 <input type="text" placeholder="Title" required className="border p-2 rounded" value={newService.title} onChange={e => setNewService({...newService, title: e.target.value})} />
                 <input type="text" placeholder="Category" required className="border p-2 rounded" value={newService.category} onChange={e => setNewService({...newService, category: e.target.value})} />
                 <input type="url" placeholder="Image URL" required className="border p-2 rounded" value={newService.image_url} onChange={e => setNewService({...newService, image_url: e.target.value})} />
+                <input type="text" placeholder="Price (e.g., ₹10 / unit)" className="border p-2 rounded" value={newService.price} onChange={e => setNewService({...newService, price: e.target.value})} />
                 <input type="text" placeholder="Description" required className="border p-2 rounded md:col-span-2" value={newService.description} onChange={e => setNewService({...newService, description: e.target.value})} />
                 <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded md:col-span-2 flex items-center justify-center hover:bg-blue-700">
                   <Plus className="h-4 w-4 mr-2" /> Add Product

@@ -47,16 +47,57 @@ async function startServer() {
     }
   };
 
+  app.get('/api/services/:id/variants', (req, res) => {
+    const variants = db.prepare('SELECT * FROM product_variants WHERE service_id = ?').all(req.params.id);
+    res.json(variants);
+  });
+
+  app.post('/api/services/:id/variants', requireAdmin, (req, res) => {
+    const { title, price } = req.body;
+    const service_id = req.params.id;
+    const stmt = db.prepare('INSERT INTO product_variants (service_id, title, price) VALUES (?, ?, ?)');
+    const info = stmt.run(service_id, title, price);
+    res.json({ id: info.lastInsertRowid });
+  });
+
+  app.delete('/api/services/:id/variants/:variantId', requireAdmin, (req, res) => {
+    const stmt = db.prepare('DELETE FROM product_variants WHERE id = ? AND service_id = ?');
+    stmt.run(req.params.variantId, req.params.id);
+    res.json({ success: true });
+  });
+
   // Services API
   app.get('/api/services', (req, res) => {
     const services = db.prepare('SELECT * FROM services ORDER BY id DESC').all();
     res.json(services);
   });
 
+  app.get('/api/services/:id', (req, res) => {
+    const service = db.prepare('SELECT * FROM services WHERE id = ?').get(req.params.id);
+    if (service) {
+      res.json(service);
+    } else {
+      res.status(404).json({ error: 'Service not found' });
+    }
+  });
+
+  app.get('/api/services/:id/reviews', (req, res) => {
+    const reviews = db.prepare('SELECT * FROM product_reviews WHERE service_id = ? ORDER BY created_at DESC').all(req.params.id);
+    res.json(reviews);
+  });
+
+  app.post('/api/services/:id/reviews', (req, res) => {
+    const { reviewer_name, content, rating } = req.body;
+    const service_id = req.params.id;
+    const stmt = db.prepare('INSERT INTO product_reviews (service_id, reviewer_name, content, rating) VALUES (?, ?, ?, ?)');
+    const info = stmt.run(service_id, reviewer_name, content, rating || 5);
+    res.json({ id: info.lastInsertRowid });
+  });
+
   app.post('/api/services', requireAdmin, (req, res) => {
-    const { title, description, image_url, category } = req.body;
-    const stmt = db.prepare('INSERT INTO services (title, description, image_url, category) VALUES (?, ?, ?, ?)');
-    const info = stmt.run(title, description, image_url, category);
+    const { title, description, image_url, category, price } = req.body;
+    const stmt = db.prepare('INSERT INTO services (title, description, image_url, category, price) VALUES (?, ?, ?, ?, ?)');
+    const info = stmt.run(title, description, image_url, category, price || '');
     res.json({ id: info.lastInsertRowid });
   });
 

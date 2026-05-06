@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 export default function Contact() {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const initialProduct = searchParams.get('product');
+  const initialQuantity = searchParams.get('quantity');
+
+  const initialMessage = initialProduct 
+    ? `I am interested in inquiring about ${initialProduct}${initialQuantity ? ` (Quantity: ${initialQuantity})` : ''}. Please provide more information.`
+    : '';
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    message: ''
+    message: initialMessage
   });
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
@@ -23,7 +33,7 @@ export default function Contact() {
       
       if (res.ok) {
         setStatus('success');
-        setFormData({ name: '', email: '', phone: '', message: '' });
+        setFormData({ name: '', email: '', phone: '', message: initialMessage });
       } else {
         setStatus('error');
       }
