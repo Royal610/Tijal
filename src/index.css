@@ -1,14 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  --color-blue-50: #F3E8FF;
-  --color-blue-100: #E9D5FF;
-  --color-blue-500: #5A189A;
-  --color-blue-600: #5A189A;
-  --color-blue-700: #1D4ED8;
-  --color-blue-800: #1D4ED8;
-  --color-green-500: #22C55E;
-  --color-green-600: #16A34A;
-  --color-slate-50: #FAFAFA;
-  --color-slate-900: #1F2933;
+  --color-slate-900: #192a47; /* Name color - Backgrounds & Text */
+  --color-slate-800: #132036; /* Darker navy */
+
+  --color-blue-500: #d5a46d; /* Second main color */
+  --color-blue-600: #d5a46d; /* Primary action color */
+  --color-blue-700: #972d08; /* Highlighted color */
+  --color-blue-800: #972d08; /* Also highlight color for darker hovers */
+
+  --color-blue-100: #f5eedd;
+  --color-blue-50:  #fffaf5;
+
+  /* Keep original WhatsApp green colors */
+  --color-green-500: #25D366;
+  --color-green-600: #128C7E;
 }

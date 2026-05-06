@@ -37,7 +37,7 @@ export default function Home() {
                 to="/services" 
                 className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
               >
-                Explore Services
+                Explore Products
               </Link>
               <Link 
                 to="/contact" 
@@ -78,11 +78,11 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-12">
             <div>
-              <h2 className="text-3xl font-bold text-slate-900">Our Popular Services</h2>
+              <h2 className="text-3xl font-bold text-slate-900">Our Popular Products</h2>
               <p className="mt-4 text-lg text-slate-600">Discover what we do best.</p>
             </div>
             <Link to="/services" className="hidden md:flex items-center text-blue-600 font-medium hover:text-blue-700">
-              View All Services <ArrowRight className="ml-2 h-4 w-4" />
+              View All Products <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -99,7 +99,7 @@ export default function Home() {
           </div>
           <div className="mt-8 text-center md:hidden">
             <Link to="/services" className="inline-flex items-center text-blue-600 font-medium hover:text-blue-700">
-              View All Services <ArrowRight className="ml-2 h-4 w-4" />
+              View All Products <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </div>
         </div>

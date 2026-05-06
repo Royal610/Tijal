@@ -7,9 +7,8 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-2 text-white">
-              <Printer className="h-8 w-8 text-blue-500" />
-              <span className="font-bold text-xl tracking-tight">Viyomkesh Art Vision</span>
+            <Link to="/" className="flex items-center">
+              <img src="/logo.png" alt="Viyomkesh Art Vision Logo" className="h-16 w-auto bg-white p-2 rounded-lg" />
             </Link>
             <p className="text-sm text-slate-400">
               Your trusted partner for all professional printing needs. High quality, fast turnaround, and excellent customer service.
@@ -26,14 +25,14 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="hover:text-white transition-colors">Home</Link></li>
               <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
-              <li><Link to="/services" className="hover:text-white transition-colors">Services</Link></li>
+              <li><Link to="/services" className="hover:text-white transition-colors">Products</Link></li>
               <li><Link to="/testimonials" className="hover:text-white transition-colors">Testimonials</Link></li>
               <li><Link to="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4">Our Services</h3>
+            <h3 className="text-white font-semibold mb-4">Our Products</h3>
             <ul className="space-y-2 text-sm">
               <li><Link to="/services" className="hover:text-white transition-colors">ID Cards & Keyrings</Link></li>
               <li><Link to="/services" className="hover:text-white transition-colors">Visiting Cards</Link></li>

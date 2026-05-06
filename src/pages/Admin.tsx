@@ -175,7 +175,7 @@ export default function Admin() {
             onClick={() => setActiveTab('services')}
             className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'services' ? 'bg-blue-600' : 'hover:bg-slate-800'}`}
           >
-            <LayoutDashboard className="mr-3 h-5 w-5" /> Services
+            <LayoutDashboard className="mr-3 h-5 w-5" /> Products
           </button>
           <button
             onClick={() => setActiveTab('testimonials')}
@@ -207,19 +207,19 @@ export default function Admin() {
         {activeTab === 'services' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-900">Manage Services</h2>
+              <h2 className="text-2xl font-bold text-slate-900">Manage Products</h2>
             </div>
             
             {/* Add Service Form */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8">
-              <h3 className="text-lg font-semibold mb-4">Add New Service</h3>
+              <h3 className="text-lg font-semibold mb-4">Add New Product</h3>
               <form onSubmit={addService} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input type="text" placeholder="Title" required className="border p-2 rounded" value={newService.title} onChange={e => setNewService({...newService, title: e.target.value})} />
                 <input type="text" placeholder="Category" required className="border p-2 rounded" value={newService.category} onChange={e => setNewService({...newService, category: e.target.value})} />
                 <input type="url" placeholder="Image URL" required className="border p-2 rounded" value={newService.image_url} onChange={e => setNewService({...newService, image_url: e.target.value})} />
                 <input type="text" placeholder="Description" required className="border p-2 rounded md:col-span-2" value={newService.description} onChange={e => setNewService({...newService, description: e.target.value})} />
                 <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded md:col-span-2 flex items-center justify-center hover:bg-blue-700">
-                  <Plus className="h-4 w-4 mr-2" /> Add Service
+                  <Plus className="h-4 w-4 mr-2" /> Add Product
                 </button>
               </form>
             </div>
@@ -229,7 +229,7 @@ export default function Admin() {
               <table className="min-w-full divide-y divide-slate-200">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Service</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Product</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Category</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
                   </tr>
