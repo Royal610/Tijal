@@ -7,6 +7,25 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState<'services' | 'testimonials' | 'inquiries'>('services');
   const [loading, setLoading] = useState(true);
 
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, currentUrls: string, setter: (val: string) => void) => {
+    const files = e.target.files;
+    if (!files) return;
+    const base64s = currentUrls ? currentUrls.split(',').filter(Boolean) : [];
+    for (let i = 0; i < files.length; i++) {
+      base64s.push(await convertToBase64(files[i]));
+    }
+    setter(base64s.join(','));
+  };
+
   // Data states
   const [services, setServices] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
@@ -89,13 +108,19 @@ export default function Admin() {
   const addService = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch('/api/services', {
+      const res = await fetch('/api/services', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newService)
       });
       setNewService({ title: '', description: '', image_url: '', category: '', price: '' });
-      fetchData();
+      await fetchData();
+      // Assume the very next call fetches the latest, we will open the variants for the newest service
+      const fetchRes = await fetch('/api/services');
+      const latestServices = await fetchRes.json();
+      if (latestServices.length > 0) {
+        viewVariants(latestServices[0].id);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -221,7 +246,7 @@ export default function Admin() {
             </div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#F27C21] hover:bg-[#d66b1c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F27C21]"
             >
               Sign in
             </button>
@@ -241,19 +266,19 @@ export default function Admin() {
         <nav className="flex-1 p-4 space-y-2">
           <button
             onClick={() => setActiveTab('services')}
-            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'services' ? 'bg-blue-600' : 'hover:bg-slate-800'}`}
+            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'services' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
           >
             <LayoutDashboard className="mr-3 h-5 w-5" /> Products
           </button>
           <button
             onClick={() => setActiveTab('testimonials')}
-            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'testimonials' ? 'bg-blue-600' : 'hover:bg-slate-800'}`}
+            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'testimonials' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
           >
             <Users className="mr-3 h-5 w-5" /> Testimonials
           </button>
           <button
             onClick={() => setActiveTab('inquiries')}
-            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'inquiries' ? 'bg-blue-600' : 'hover:bg-slate-800'}`}
+            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'inquiries' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
           >
             <MessageSquare className="mr-3 h-5 w-5" /> Inquiries
           </button>
@@ -284,12 +309,16 @@ export default function Admin() {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8">
                   <h3 className="text-lg font-semibold mb-4">Add New Product</h3>
                   <form onSubmit={addService} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" placeholder="Title" required className="border p-2 rounded" value={newService.title} onChange={e => setNewService({...newService, title: e.target.value})} />
+                    <input type="text" placeholder="Product Name" required className="border p-2 rounded" value={newService.title} onChange={e => setNewService({...newService, title: e.target.value})} />
                     <input type="text" placeholder="Category" required className="border p-2 rounded" value={newService.category} onChange={e => setNewService({...newService, category: e.target.value})} />
-                    <input type="url" placeholder="Image URL" required className="border p-2 rounded" value={newService.image_url} onChange={e => setNewService({...newService, image_url: e.target.value})} />
-                    <input type="text" placeholder="Price (e.g., ₹10 / unit)" className="border p-2 rounded" value={newService.price} onChange={e => setNewService({...newService, price: e.target.value})} />
-                    <input type="text" placeholder="Description" required className="border p-2 rounded md:col-span-2" value={newService.description} onChange={e => setNewService({...newService, description: e.target.value})} />
-                    <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded md:col-span-2 flex items-center justify-center hover:bg-blue-700">
+                    <div className="border p-2 rounded flex items-center justify-between">
+                      <span className="text-sm text-slate-500 mr-2">Product Image:</span>
+                      <input type="file" accept="image/*" required onChange={e => handleImageUpload(e, newService.image_url, val => setNewService({...newService, image_url: val}))} className="text-sm" />
+                    </div>
+                    <input type="text" placeholder="Expected Number of Varieties (e.g., 5)" className="border p-2 rounded" />
+                    <input type="text" placeholder="Base Price (e.g., ₹10 / unit)" className="border p-2 rounded" value={newService.price} onChange={e => setNewService({...newService, price: e.target.value})} />
+                    <input type="text" placeholder="Description" required className="border p-2 rounded" value={newService.description} onChange={e => setNewService({...newService, description: e.target.value})} />
+                    <button type="submit" className="bg-[#F27C21] text-white px-4 py-2 rounded md:col-span-2 flex items-center justify-center hover:bg-[#d66b1c]">
                       <Plus className="h-4 w-4 mr-2" /> Add Product
                     </button>
                   </form>
@@ -307,10 +336,10 @@ export default function Admin() {
                     </thead>
                     <tbody className="bg-white divide-y divide-slate-200">
                       {services.map(service => (
-                        <tr key={service.id}>
+                        <tr key={service.id} className="cursor-pointer hover:bg-slate-50" onClick={() => viewVariants(service.id)}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <img className="h-10 w-10 rounded-md object-cover" src={service.image_url} alt="" referrerPolicy="no-referrer" />
+                              <img className="h-10 w-10 rounded-md object-cover" src={service.image_url && service.image_url.split(',')[0]} alt="" referrerPolicy="no-referrer" />
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-slate-900">{service.title}</div>
                               </div>
@@ -318,10 +347,7 @@ export default function Admin() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{service.category}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button onClick={() => viewVariants(service.id)} className="text-blue-600 hover:text-blue-900 mr-4">
-                              Variants
-                            </button>
-                            <button onClick={() => deleteService(service.id)} className="text-red-600 hover:text-red-900">
+                            <button onClick={(e) => { e.stopPropagation(); deleteService(service.id); }} className="text-red-600 hover:text-red-900">
                               <Trash2 className="h-5 w-5 inline" />
                             </button>
                           </td>
@@ -335,7 +361,7 @@ export default function Admin() {
               <>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-slate-900">Manage Variants</h2>
-                  <button onClick={() => setSelectedServiceId(null)} className="text-blue-600 hover:underline">
+                  <button onClick={() => setSelectedServiceId(null)} className="text-[#F27C21] hover:underline">
                     &larr; Back to Products
                   </button>
                 </div>
@@ -346,8 +372,11 @@ export default function Admin() {
                   <form onSubmit={addVariant} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="text" placeholder="Variant Title (e.g., Red, Large)" required className="border p-2 rounded" value={newVariant.title} onChange={e => setNewVariant({...newVariant, title: e.target.value})} />
                     <input type="text" placeholder="Price (e.g., ₹15)" className="border p-2 rounded" value={newVariant.price} onChange={e => setNewVariant({...newVariant, price: e.target.value})} />
-                    <input type="text" placeholder="Image URLs (comma separated for multiple)" className="border p-2 rounded md:col-span-2" value={newVariant.image_url} onChange={e => setNewVariant({...newVariant, image_url: e.target.value})} />
-                    <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded md:col-span-2 flex items-center justify-center hover:bg-blue-700">
+                    <div className="border p-2 rounded md:col-span-2 flex items-center">
+                      <span className="text-sm text-slate-500 mr-2">Variant Images:</span>
+                      <input type="file" multiple accept="image/*" onChange={e => handleImageUpload(e, newVariant.image_url, val => setNewVariant({...newVariant, image_url: val}))} className="text-sm" />
+                    </div>
+                    <button type="submit" className="bg-[#F27C21] text-white px-4 py-2 rounded md:col-span-2 flex items-center justify-center hover:bg-[#d66b1c]">
                       <Plus className="h-4 w-4 mr-2" /> Add Variant
                     </button>
                   </form>
@@ -370,7 +399,10 @@ export default function Admin() {
                             <>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <input type="text" className="border p-2 rounded w-full" value={editVariantForm.title} onChange={e => setEditVariantForm({ ...editVariantForm, title: e.target.value })} required placeholder="Variant Title" />
-                                <input type="text" className="border p-2 rounded w-full mt-2" value={editVariantForm.image_url} onChange={e => setEditVariantForm({ ...editVariantForm, image_url: e.target.value })} placeholder="Image URLs (comma separated)" />
+                                <div className="border p-2 rounded w-full mt-2 flex items-center bg-white">
+                                  <span className="text-xs text-slate-500 mr-2">New Images:</span>
+                                  <input type="file" multiple accept="image/*" onChange={e => handleImageUpload(e, '', val => setEditVariantForm({...editVariantForm, image_url: val}))} className="text-xs w-full" />
+                                </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <input type="text" className="border p-2 rounded w-full" value={editVariantForm.price} onChange={e => setEditVariantForm({ ...editVariantForm, price: e.target.value })} placeholder="Price (e.g., ₹15)" />
@@ -402,7 +434,7 @@ export default function Admin() {
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{variant.price || 'Same as product'}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button onClick={() => startEditVariant(variant)} className="text-blue-600 hover:text-blue-900 mr-4">
+                                <button onClick={() => startEditVariant(variant)} className="text-[#F27C21] hover:text-[#d66b1c] mr-4">
                                   Edit
                                 </button>
                                 <button onClick={() => deleteVariant(variant.id)} className="text-red-600 hover:text-red-900">
@@ -447,7 +479,7 @@ export default function Admin() {
                   <option value="1">1 Star</option>
                 </select>
                 <textarea placeholder="Content" required className="border p-2 rounded md:col-span-2" value={newTestimonial.content} onChange={e => setNewTestimonial({...newTestimonial, content: e.target.value})}></textarea>
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded md:col-span-2 flex items-center justify-center hover:bg-blue-700">
+                <button type="submit" className="bg-[#F27C21] text-white px-4 py-2 rounded md:col-span-2 flex items-center justify-center hover:bg-[#d66b1c]">
                   <Plus className="h-4 w-4 mr-2" /> Add Testimonial
                 </button>
               </form>
