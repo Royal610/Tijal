@@ -24,6 +24,7 @@ interface Variant {
   service_id: number;
   title: string;
   price: string;
+  image_url: string;
 }
 
 export default function ProductDetails() {
@@ -172,9 +173,9 @@ export default function ProductDetails() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
             <div className="h-64 md:h-auto min-h-[400px] relative">
               <img 
-                src={product.image_url} 
-                alt={product.title} 
-                className="absolute inset-0 w-full h-full object-cover"
+                src={selectedVariant?.image_url || product.image_url} 
+                alt={selectedVariant ? selectedVariant.title : product.title} 
+                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
                 referrerPolicy="no-referrer"
               />
             </div>
@@ -182,7 +183,7 @@ export default function ProductDetails() {
               <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-bold uppercase tracking-wider rounded-full mb-6 w-max">
                 {product.category}
               </span>
-              <h2 className="text-3xl font-bold text-slate-900 mb-6">{product.title}</h2>
+              <h2 className="text-3xl font-bold text-slate-900 mb-6">{selectedVariant ? `${product.title} - ${selectedVariant.title}` : product.title}</h2>
               
               {getDisplayedPrice() && (
                 <div className="text-2xl font-semibold text-blue-600 mb-6">
@@ -196,28 +197,38 @@ export default function ProductDetails() {
                 </p>
               </div>
               
-              <div className="mt-8 flex flex-col gap-6">
-                {variants.length > 0 && (
-                  <div className="flex flex-col">
-                    <label className="font-semibold text-slate-900 mb-2">Select Type:</label>
-                    <select
-                      className="border border-slate-300 rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                      value={selectedVariant?.id || ''}
-                      onChange={(e) => {
-                        const variant = variants.find(v => v.id.toString() === e.target.value);
-                        if (variant) setSelectedVariant(variant);
-                      }}
-                    >
-                      {variants.map((variant) => (
-                        <option key={variant.id} value={variant.id}>{variant.title}</option>
-                      ))}
-                    </select>
+              {variants.length > 0 && (
+                <div className="mt-8 border-t border-slate-200 pt-8">
+                  <label className="font-bold text-slate-900 mb-4 block text-lg">Select Option / Category:</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {variants.map((variant) => (
+                      <div 
+                        key={variant.id} 
+                        onClick={() => setSelectedVariant(variant)}
+                        className={`cursor-pointer rounded-xl overflow-hidden border-2 transition-all ${selectedVariant?.id === variant.id ? 'border-blue-600 shadow-md ring-2 ring-blue-600 ring-opacity-20 bg-blue-50/50' : 'border-slate-200 hover:border-blue-400 bg-white'}`}
+                      >
+                        <div className="h-24 bg-slate-100 relative">
+                          <img 
+                            src={variant.image_url || product.image_url} 
+                            alt={variant.title} 
+                            className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                          />
+                        </div>
+                        <div className="p-3 text-center">
+                          <div className="font-semibold text-xs text-slate-900 line-clamp-2 h-8 flex items-center justify-center" title={variant.title}>{variant.title}</div>
+                          <div className="text-blue-600 font-bold mt-1 text-sm">{variant.price}</div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                )}
+                </div>
+              )}
 
+              <div className="mt-8 flex flex-col gap-6">
                 <div className="flex items-center">
-                  <span className="font-semibold text-slate-900 mr-4 w-24">Quantity:</span>
-                  <div className="flex items-center border border-slate-300 rounded-lg bg-white">
+                  <span className="font-bold text-slate-900 mr-4 w-20">Quantity:</span>
+                  <div className="flex items-center border border-slate-300 rounded-lg bg-white shadow-sm">
                     <button 
                       onClick={() => setQuantity(q => Math.max(1, q - 1))}
                       className="px-4 py-2 text-slate-600 hover:bg-slate-100 transition-colors rounded-l-lg disabled:opacity-50 border-r border-slate-300"
@@ -230,7 +241,7 @@ export default function ProductDetails() {
                       min="1"
                       value={quantity}
                       onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-20 text-center py-2 focus:outline-none font-semibold text-slate-900 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-16 sm:w-20 text-center py-2 focus:outline-none font-semibold text-slate-900 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <button 
                       onClick={() => setQuantity(q => q + 1)}
@@ -244,9 +255,9 @@ export default function ProductDetails() {
                 <div className="mt-2">
                   <button 
                     onClick={() => setIsModalOpen(true)}
-                    className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-sm w-full"
+                    className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-md w-full"
                   >
-                    Inquire About This Product
+                    Inquire For Bulk Pricing
                   </button>
                 </div>
               </div>

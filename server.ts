@@ -53,10 +53,10 @@ async function startServer() {
   });
 
   app.post('/api/services/:id/variants', requireAdmin, (req, res) => {
-    const { title, price } = req.body;
+    const { title, price, image_url } = req.body;
     const service_id = req.params.id;
-    const stmt = db.prepare('INSERT INTO product_variants (service_id, title, price) VALUES (?, ?, ?)');
-    const info = stmt.run(service_id, title, price);
+    const stmt = db.prepare('INSERT INTO product_variants (service_id, title, price, image_url) VALUES (?, ?, ?, ?)');
+    const info = stmt.run(service_id, title, price, image_url || '');
     res.json({ id: info.lastInsertRowid });
   });
 
