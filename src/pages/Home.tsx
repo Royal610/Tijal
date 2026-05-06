@@ -52,14 +52,9 @@ export default function Home() {
             
             <div className="relative z-20 w-full sm:w-[70%] p-8 flex flex-col justify-center">
               <h2 className="text-[28px] sm:text-[30px] font-bold text-slate-900 mb-3 leading-[1.15] font-sans tracking-tight max-w-[300px]">Premium ID Cards For Your Organization</h2>
-              <p className="text-slate-800 text-[13px] mb-6 max-w-[300px] font-medium leading-[1.6]">
+              <p className="text-slate-800 text-[13px] max-w-[300px] font-medium leading-[1.6]">
                 Professional, durable, and secure ID cards with smart chip, RFID, and standard PVC options. Perfect for employees, events, and education.
               </p>
-              <div>
-                <Link to="/services" className="inline-block bg-[#F27C21] hover:bg-[#d66b1c] text-white font-semibold py-2 px-6 rounded text-sm transition-colors shadow-sm tracking-wide">
-                  Shop Now
-                </Link>
-              </div>
             </div>
           </div>
 
