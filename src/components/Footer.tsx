@@ -62,8 +62,11 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
-          <p>&copy; {new Date().getFullYear()} Viyomkesh Art Vision. All rights reserved.</p>
-          <div className="mt-4 md:mt-0 space-x-4">
+          <div className="flex flex-col items-center md:items-start space-y-1 mb-4 md:mb-0">
+            <p>&copy; {new Date().getFullYear()} Viyomkesh Art Vision. All rights reserved.</p>
+            <p>Developed by <a href="https://www.royalzinformatics.com" target="_blank" rel="noopener noreferrer" className="text-[#F27C21] hover:text-[#d66b1c] hover:underline transition-colors font-medium">www.royalzinformatics.com</a></p>
+          </div>
+          <div className="space-x-4">
             <Link to="/admin" className="hover:text-white transition-colors">Admin Login</Link>
           </div>
         </div>
