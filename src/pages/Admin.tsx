@@ -4,8 +4,15 @@ import { Trash2, Plus, LogOut, LayoutDashboard, MessageSquare, Users } from 'luc
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
-  const [activeTab, setActiveTab] = useState<'services' | 'testimonials' | 'inquiries'>('services');
+  const [token, setToken] = useState('');
+  const [require2fa, setRequire2fa] = useState(false);
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'services' | 'testimonials' | 'inquiries' | 'settings'>('dashboard');
+  const [dashboardStats, setDashboardStats] = useState({ totalProducts: 0, bulkInquiries: 0, totalInquiries: 0 });
+  const [setup2faInfo, setSetup2faInfo] = useState<{qrCodeUrl: string, secret: string, alreadyEnabled?: boolean} | null>(null);
+  const [setupToken, setSetupToken] = useState('');
   const [loading, setLoading] = useState(true);
+  
+  const [counters, setCounters] = useState({ clients: '', prints: '', experience: '', quality: '' });
 
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -47,7 +54,10 @@ export default function Admin() {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) {
+      if (isAuthenticated) {
+      if (activeTab === 'dashboard') {
+        fetch('/api/admin/dashboard').then(r => r.json()).then(setDashboardStats).catch(console.error);
+      }
       fetchData();
     }
   }, [isAuthenticated, activeTab]);
@@ -70,16 +80,64 @@ export default function Admin() {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ password, token })
       });
+      const data = await res.json();
       if (res.ok) {
         setIsAuthenticated(true);
         setPassword('');
+        setToken('');
+        setRequire2fa(false);
+      } else if (res.status === 401 && data.require2fa) {
+        setRequire2fa(true);
       } else {
-        alert('Invalid password');
+        alert(data.error || 'Invalid login');
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const setup2fa = async () => {
+    try {
+      fetch('/api/settings/counters').then(r => r.json()).then(setCounters).catch(console.error);
+      const res = await fetch('/api/admin/2fa/setup');
+      setSetup2faInfo(await res.json());
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const updateCounters = async () => {
+    try {
+      const res = await fetch('/api/admin/settings/counters', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(counters)
+      });
+      if (res.ok) alert('Counters updated successfully!');
+      else alert('Failed to update counters');
+    } catch (e) {
+      console.error(e);
+      alert('Failed to update counters');
+    }
+  };
+
+  const verifySetup2fa = async () => {
+    try {
+      const res = await fetch('/api/admin/2fa/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: setupToken })
+      });
+      if (res.ok) {
+        alert('2FA Enabled successfully!');
+        setSetup2faInfo({ qrCodeUrl: '', secret: '', alreadyEnabled: true });
+      } else {
+        alert('Invalid token');
+      }
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -92,13 +150,16 @@ export default function Admin() {
     try {
       if (activeTab === 'services') {
         const res = await fetch('/api/services');
-        setServices(await res.json());
+        const data = await res.json();
+        if (Array.isArray(data)) setServices(data);
       } else if (activeTab === 'testimonials') {
         const res = await fetch('/api/testimonials');
-        setTestimonials(await res.json());
+        const data = await res.json();
+        if (Array.isArray(data)) setTestimonials(data);
       } else if (activeTab === 'inquiries') {
         const res = await fetch('/api/inquiries');
-        setInquiries(await res.json());
+        const data = await res.json();
+        if (Array.isArray(data)) setInquiries(data);
       }
     } catch (err) {
       console.error(err);
@@ -226,29 +287,57 @@ export default function Admin() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-          <div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">Admin Login</h2>
-            <p className="mt-2 text-center text-sm text-slate-600">Password is 'admin' for demo</p>
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+          <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+          <div className="absolute top-0 -right-10 w-40 h-40 bg-magenta-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+          <div className="absolute -bottom-10 left-20 w-40 h-40 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+          <div className="absolute -bottom-10 right-20 w-40 h-40 bg-black rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        </div>
+
+        <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-3xl shadow-2xl relative z-10 border-t-4 border-[#F27C21]">
+          <div className="text-center">
+            <div className="mx-auto w-16 h-16 bg-slate-900 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+              <span className="text-3xl font-black text-white tracking-tighter">V<span className="text-[#F27C21]">A</span>V</span>
+            </div>
+            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Admin Portal</h2>
+            <p className="mt-2 text-sm text-slate-500 font-medium">Viyomkesh Art Vision Management</p>
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-            <div>
-              <label className="sr-only">Password</label>
-              <input
-                type="password"
-                required
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-semibold text-slate-700 block mb-2">Password</label>
+                <input
+                  type="password"
+                  required
+                  className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-slate-300 placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F27C21] focus:border-transparent transition-all sm:text-sm shadow-sm opacity-90"
+                  placeholder="Enter administrator password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              {require2fa && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                  <label className="text-sm font-semibold text-slate-700 block mb-2">2FA Token</label>
+                  <input
+                    type="text"
+                    required
+                    className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-slate-300 placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F27C21] focus:border-transparent transition-all sm:text-sm shadow-sm font-mono tracking-widest text-center text-lg"
+                    placeholder="000000"
+                    maxLength={6}
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
+                  />
+                  <p className="mt-2 text-xs text-slate-500 text-center">Open Google Authenticator for your code</p>
+                </div>
+              )}
             </div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#F27C21] hover:bg-[#d66b1c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F27C21]"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-[#F27C21] hover:bg-[#d66b1c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F27C21] shadow-lg transition-all"
             >
-              Sign in
+              Secure Login
             </button>
           </form>
         </div>
@@ -264,6 +353,12 @@ export default function Admin() {
           <h2 className="text-2xl font-bold">Admin Panel</h2>
         </div>
         <nav className="flex-1 p-4 space-y-2">
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'dashboard' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
+          >
+            <LayoutDashboard className="mr-3 h-5 w-5" /> Dashboard
+          </button>
           <button
             onClick={() => setActiveTab('services')}
             className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'services' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
@@ -282,6 +377,12 @@ export default function Admin() {
           >
             <MessageSquare className="mr-3 h-5 w-5" /> Inquiries
           </button>
+          <button
+            onClick={() => { setActiveTab('settings'); setup2fa(); }}
+            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'settings' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
+          >
+            <Users className="mr-3 h-5 w-5" /> Settings (2FA)
+          </button>
         </nav>
         <div className="p-4 border-t border-slate-800">
           <button
@@ -296,6 +397,90 @@ export default function Admin() {
       {/* Main Content */}
       <div className="flex-1 p-8 overflow-y-auto">
         
+        {/* Dashboard Tab */}
+        {activeTab === 'dashboard' && (
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Dashboard</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div className="text-sm font-medium text-slate-500 mb-1">Total Products</div>
+                <div className="text-3xl font-bold text-slate-900">{dashboardStats.totalProducts}</div>
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div className="text-sm font-medium text-slate-500 mb-1">Bulk Enquiries</div>
+                <div className="text-3xl font-bold text-slate-900">{dashboardStats.bulkInquiries}</div>
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div className="text-sm font-medium text-slate-500 mb-1">Total Web Enquiries</div>
+                <div className="text-3xl font-bold text-slate-900">{dashboardStats.totalInquiries}</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Settings Tab */}
+        {activeTab === 'settings' && (
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Security Settings</h2>
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8 max-w-xl">
+              <h3 className="text-lg font-semibold mb-4">Two-Factor Authentication (2FA)</h3>
+              
+              {setup2faInfo === null ? (
+                <p>Loading...</p>
+              ) : setup2faInfo.alreadyEnabled ? (
+                <div className="p-4 bg-green-50 border border-green-200 rounded-md text-green-700">
+                  Google Authenticator 2FA is currently <strong>Enabled</strong>.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-sm text-slate-600">Scan this QR code with the Google Authenticator app on your phone:</p>
+                  {setup2faInfo.qrCodeUrl && (
+                    <img src={setup2faInfo.qrCodeUrl} alt="2FA QR Code" className="w-48 h-48 border rounded-md shadow-sm" />
+                  )}
+                  <p className="text-xs text-slate-500">Manual Entry Code: <span className="font-mono bg-slate-100 p-1 rounded">{setup2faInfo.secret}</span></p>
+                  <div>
+                    <input 
+                      type="text" 
+                      placeholder="Enter 6-digit code" 
+                      className="border p-2 rounded mr-2"
+                      value={setupToken}
+                      onChange={e => setSetupToken(e.target.value)}
+                    />
+                    <button onClick={verifySetup2fa} className="bg-[#F27C21] text-white px-4 py-2 rounded">
+                      Verify & Enable 2FA
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mt-8 max-w-xl">
+              <h3 className="text-lg font-semibold mb-4">Manage Counters (About Page)</h3>
+              <form onSubmit={e => { e.preventDefault(); updateCounters(); }} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Happy Clients</label>
+                  <input type="text" className="w-full border p-2 rounded" value={counters.clients} onChange={e => setCounters({...counters, clients: e.target.value})} placeholder="e.g. 5,000+" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Prints Delivered</label>
+                  <input type="text" className="w-full border p-2 rounded" value={counters.prints} onChange={e => setCounters({...counters, prints: e.target.value})} placeholder="e.g. 1M+" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Years Experience</label>
+                  <input type="text" className="w-full border p-2 rounded" value={counters.experience} onChange={e => setCounters({...counters, experience: e.target.value})} placeholder="e.g. 15+" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Quality Guaranteed</label>
+                  <input type="text" className="w-full border p-2 rounded" value={counters.quality} onChange={e => setCounters({...counters, quality: e.target.value})} placeholder="e.g. 100%" />
+                </div>
+                <button type="submit" className="bg-[#F27C21] text-white px-4 py-2 rounded focus:outline-none hover:bg-[#d66b1c]">
+                  Save Counters
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
         {/* Services Tab */}
         {activeTab === 'services' && (
           <div>

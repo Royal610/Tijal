@@ -90,7 +90,7 @@ export default function Contact() {
                   value={formData.name}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  placeholder="John Doe"
+                  placeholder="Enter Your Name"
                 />
               </div>
               
@@ -105,7 +105,7 @@ export default function Contact() {
                     value={formData.email}
                     onChange={handleChange}
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                    placeholder="john@example.com"
+                    placeholder="email"
                   />
                 </div>
                 <div>
@@ -117,7 +117,7 @@ export default function Contact() {
                     value={formData.phone}
                     onChange={handleChange}
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="9999999999"
                   />
                 </div>
               </div>
@@ -169,7 +169,7 @@ export default function Contact() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lg font-semibold text-slate-900">Our Location</h3>
-                    <p className="mt-1 text-slate-600">123 Print Avenue, Design District<br />New York, NY 10001</p>
+                    <p className="mt-1 text-slate-600">H. No. 176 Near Panchayat Bhawan Najarpur Jamai Chhindwara 480551</p>
                   </div>
                 </div>
                 
@@ -179,7 +179,7 @@ export default function Contact() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lg font-semibold text-slate-900">Phone</h3>
-                    <p className="mt-1 text-slate-600">+1 (555) 123-4567<br />Mon-Fri 9am to 6pm</p>
+                    <p className="mt-1 text-slate-600">+91 92037 00114<br />Mon-Fri 9am to 6pm</p>
                   </div>
                 </div>
 
@@ -189,7 +189,7 @@ export default function Contact() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lg font-semibold text-slate-900">Email</h3>
-                    <p className="mt-1 text-slate-600">info@printpro.com<br />support@printpro.com</p>
+                    <p className="mt-1 text-slate-600">Viyomkeshartvision@gmail.com</p>
                   </div>
                 </div>
               </div>
@@ -198,7 +198,7 @@ export default function Contact() {
             {/* Google Map Embed */}
             <div className="rounded-2xl overflow-hidden shadow-sm border border-slate-200 h-64 relative">
               <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1m2!1s0x89c259af18ac4011%3A0x76ea14c120b64eb8!2sNew%20York%20City%2C%20NY!5e0!3m2!1sen!2sus!4v1645000000000!5m2!1sen!2sus" 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3694.3530717362837!2d78.646369674258!3d22.1886845469339!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bd57f0d6b59bc65%3A0x5e0a26ba7f413edc!2sVIYOMKESH%20ART%20VISION%20PVT%20LTD!5e0!3m2!1sen!2sin!4v1778760178078!5m2!1sen!2sin" 
                 width="100%" 
                 height="100%" 
                 style={{ border: 0 }} 

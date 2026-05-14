@@ -48,6 +48,12 @@ db.exec(`
     image_url TEXT,
     FOREIGN KEY (service_id) REFERENCES services (id)
   );
+
+  CREATE TABLE IF NOT EXISTS admin_settings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    key TEXT UNIQUE NOT NULL,
+    value TEXT NOT NULL
+  );
 `);
 
 try {

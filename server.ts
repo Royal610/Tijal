@@ -1,6 +1,8 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import cookieParser from 'cookie-parser';
+import speakeasy from 'speakeasy';
+import QRCode from 'qrcode';
 import db from './server/db.js';
 
 const ADMIN_PASSWORD = 'admin'; // Hardcoded for demo purposes
@@ -15,11 +17,35 @@ async function startServer() {
 
   // --- API Routes ---
 
-  // Admin Login
   app.post('/api/admin/login', (req, res) => {
-    const { password } = req.body;
+    const { password, token } = req.body;
+    
     if (password === ADMIN_PASSWORD) {
-      res.cookie('admin_auth', 'true', { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+      // Check if 2FA is enabled
+      const enabledStmt = db.prepare("SELECT value FROM admin_settings WHERE key = '2fa_enabled'");
+      const enabledRow = enabledStmt.get() as { value: string } | undefined;
+      const is2faEnabled = enabledRow?.value === 'true';
+
+      if (is2faEnabled) {
+        if (!token) {
+          return res.status(401).json({ error: '2FA token required', require2fa: true });
+        }
+        
+        const secretStmt = db.prepare("SELECT value FROM admin_settings WHERE key = '2fa_secret'");
+        const secretRow = secretStmt.get() as { value: string };
+        
+        const verified = speakeasy.totp.verify({
+          secret: secretRow.value,
+          encoding: 'base32',
+          token: token
+        });
+        
+        if (!verified) {
+          return res.status(401).json({ error: 'Invalid 2FA token' });
+        }
+      }
+
+      res.cookie('admin_auth', 'true', { httpOnly: true, maxAge: 24 * 60 * 60 * 1000, sameSite: 'none', secure: true });
       res.json({ success: true });
     } else {
       res.status(401).json({ error: 'Invalid password' });
@@ -27,7 +53,7 @@ async function startServer() {
   });
 
   app.post('/api/admin/logout', (req, res) => {
-    res.clearCookie('admin_auth');
+    res.clearCookie('admin_auth', { httpOnly: true, sameSite: 'none', secure: true });
     res.json({ success: true });
   });
 
@@ -47,6 +73,88 @@ async function startServer() {
       res.status(401).json({ error: 'Unauthorized' });
     }
   };
+
+  app.get('/api/admin/2fa/setup', requireAdmin, async (req, res) => {
+    const enabledStmt = db.prepare("SELECT value FROM admin_settings WHERE key = '2fa_enabled'");
+    const enabledRow = enabledStmt.get() as { value: string } | undefined;
+    
+    if (enabledRow?.value === 'true') {
+      return res.json({ alreadyEnabled: true });
+    }
+
+    let secretRow = db.prepare("SELECT value FROM admin_settings WHERE key = '2fa_secret'").get() as { value: string } | undefined;
+    let base32Secret = secretRow?.value;
+    
+    if (!base32Secret) {
+      const secret = speakeasy.generateSecret({ name: 'Printing Business Admin' });
+      base32Secret = secret.base32;
+      db.prepare("INSERT INTO admin_settings (key, value) VALUES ('2fa_secret', ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").run(base32Secret);
+    }
+    
+    const otpauth = speakeasy.otpauthURL({ secret: base32Secret, label: 'Printing Business Admin', encoding: 'base32' });
+    const qrCodeUrl = await QRCode.toDataURL(otpauth);
+    
+    res.json({ qrCodeUrl, secret: base32Secret });
+  });
+
+  app.post('/api/admin/2fa/verify', requireAdmin, (req, res) => {
+    const { token } = req.body;
+    const secretRow = db.prepare("SELECT value FROM admin_settings WHERE key = '2fa_secret'").get() as { value: string };
+    
+    const verified = speakeasy.totp.verify({
+      secret: secretRow.value,
+      encoding: 'base32',
+      token: token
+    });
+    
+    if (verified) {
+      db.prepare("INSERT INTO admin_settings (key, value) VALUES ('2fa_enabled', 'true') ON CONFLICT(key) DO UPDATE SET value=excluded.value").run();
+      res.json({ success: true });
+    } else {
+      res.status(400).json({ error: 'Invalid token' });
+    }
+  });
+
+  app.get('/api/admin/dashboard', requireAdmin, (req, res) => {
+    const productsCount = db.prepare('SELECT COUNT(*) as count FROM services').get() as { count: number };
+    const inquiriesCount = db.prepare("SELECT COUNT(*) as count FROM inquiries WHERE message LIKE '%Inquiry for%'").get() as { count: number };
+    const allInquiriesCount = db.prepare("SELECT COUNT(*) as count FROM inquiries").get() as { count: number };
+    res.json({ 
+      totalProducts: productsCount.count, 
+      bulkInquiries: inquiriesCount.count,
+      totalInquiries: allInquiriesCount.count
+    });
+  });
+
+  app.get('/api/settings/counters', (req, res) => {
+    const clients = db.prepare("SELECT value FROM admin_settings WHERE key = 'counter_clients'").get() as { value: string } | undefined;
+    const prints = db.prepare("SELECT value FROM admin_settings WHERE key = 'counter_prints'").get() as { value: string } | undefined;
+    const experience = db.prepare("SELECT value FROM admin_settings WHERE key = 'counter_experience'").get() as { value: string } | undefined;
+    const quality = db.prepare("SELECT value FROM admin_settings WHERE key = 'counter_quality'").get() as { value: string } | undefined;
+
+    res.json({
+      clients: clients?.value || '5,000+',
+      prints: prints?.value || '1M+',
+      experience: experience?.value || '15+',
+      quality: quality?.value || '100%',
+    });
+  });
+
+  app.post('/api/admin/settings/counters', requireAdmin, (req, res) => {
+    const { clients, prints, experience, quality } = req.body;
+    const stmt = db.prepare("INSERT INTO admin_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value");
+    
+    // Using an explicit transaction could be better, or just sequential inserts.
+    const runUpdate = db.transaction(() => {
+      if (clients !== undefined) stmt.run('counter_clients', String(clients));
+      if (prints !== undefined) stmt.run('counter_prints', String(prints));
+      if (experience !== undefined) stmt.run('counter_experience', String(experience));
+      if (quality !== undefined) stmt.run('counter_quality', String(quality));
+    });
+    
+    runUpdate();
+    res.json({ success: true });
+  });
 
   app.get('/api/services/:id/variants', (req, res) => {
     const variants = db.prepare('SELECT * FROM product_variants WHERE service_id = ?').all(req.params.id);
