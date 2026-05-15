@@ -20,7 +20,11 @@ async function startServer() {
     console.error('===================================================');
     console.error('DATABASE CONNECTION ERROR:');
     console.error('Failed to connect to MySQL database:', e.message);
-    console.error('Please verify your DB_HOST, DB_USER, DB_PASSWORD, and DB_NAME environment variables.');
+    console.error('Environment variables being used:');
+    console.error('DB_HOST:', process.env.DB_HOST);
+    console.error('DB_USER:', process.env.DB_USER);
+    console.error('DB_NAME:', process.env.DB_NAME);
+    console.error('Please verify your environment variables in the App Settings/Plesk.');
     console.error('===================================================');
   });
 
