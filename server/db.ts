@@ -2,11 +2,18 @@ import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 dotenv.config();
 
+let dbHost = process.env.DB_HOST || 'localhost';
+if (dbHost === 'viyom') {
+  dbHost = 'localhost';
+}
+const [host, port] = dbHost.split(':');
+
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'printing_business',
+  host: host,
+  port: port ? parseInt(port, 10) : parseInt(process.env.DB_PORT || '3306', 10),
+  user: process.env.DB_USER || 'viyom_user',
+  password: process.env.DB_PASSWORD || 'Viyomkesh#$1092',
+  database: process.env.DB_NAME || 'viyom_db',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
