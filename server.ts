@@ -13,8 +13,15 @@ async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3000;
 
-  await initializeDb().catch(e => {
-    console.error('Failed to initialize database:', e);
+  // Try to initialize DB, but don't crash if it fails
+  initializeDb().then(() => {
+    console.log('Database connected and initialized successfully.');
+  }).catch(e => {
+    console.error('===================================================');
+    console.error('DATABASE CONNECTION ERROR:');
+    console.error('Failed to connect to MySQL database:', e.message);
+    console.error('Please verify your DB_HOST, DB_USER, DB_PASSWORD, and DB_NAME environment variables.');
+    console.error('===================================================');
   });
 
   app.use(express.json({ limit: '50mb' }));

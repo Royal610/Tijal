@@ -7,7 +7,13 @@ export default function Home() {
   useEffect(() => {
     fetch('/api/services')
       .then(res => res.json())
-      .then(data => setFeaturedServices(data.slice(0, 4)))
+      .then(data => {
+        if (Array.isArray(data)) {
+          setFeaturedServices(data.slice(0, 4));
+        } else {
+          console.error("Failed to load services:", data);
+        }
+      })
       .catch(err => console.error(err));
   }, []);
 
