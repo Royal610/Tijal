@@ -129,7 +129,7 @@ export default function Home() {
             {featuredServices.map((service) => (
               <Link to={`/services/${service.id}`} key={service.id} className="group flex flex-col h-full cursor-pointer">
                 <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative rounded-md">
-                  <img src={service.image_url} alt={service.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerPolicy="no-referrer" />
+                  <img src={service.image_url || undefined} alt={service.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerPolicy="no-referrer" />
                 </div>
                 <h3 className="text-center font-semibold text-slate-700 mt-3 text-[14px] group-hover:text-blue-600">{service.title}</h3>
               </Link>

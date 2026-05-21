@@ -179,7 +179,7 @@ export default function Admin() {
       // Assume the very next call fetches the latest, we will open the variants for the newest service
       const fetchRes = await fetch('/api/services');
       const latestServices = await fetchRes.json();
-      if (latestServices.length > 0) {
+      if (Array.isArray(latestServices) && latestServices.length > 0) {
         viewVariants(latestServices[0].id);
       }
     } catch (err) {
@@ -200,9 +200,15 @@ export default function Admin() {
   const fetchVariants = async (serviceId: number) => {
     try {
       const res = await fetch(`/api/services/${serviceId}/variants`);
-      setVariants(await res.json());
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setVariants(data);
+      } else {
+        setVariants([]);
+      }
     } catch (err) {
       console.error(err);
+      setVariants([]);
     }
   };
 
@@ -435,7 +441,7 @@ export default function Admin() {
                 <div className="space-y-4">
                   <p className="text-sm text-slate-600">Scan this QR code with the Google Authenticator app on your phone:</p>
                   {setup2faInfo.qrCodeUrl && (
-                    <img src={setup2faInfo.qrCodeUrl} alt="2FA QR Code" className="w-48 h-48 border rounded-md shadow-sm" />
+                    <img src={setup2faInfo.qrCodeUrl || undefined} alt="2FA QR Code" className="w-48 h-48 border rounded-md shadow-sm" />
                   )}
                   <p className="text-xs text-slate-500">Manual Entry Code: <span className="font-mono bg-slate-100 p-1 rounded">{setup2faInfo.secret}</span></p>
                   <div>
@@ -524,7 +530,7 @@ export default function Admin() {
                         <tr key={service.id} className="cursor-pointer hover:bg-slate-50" onClick={() => viewVariants(service.id)}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <img className="h-10 w-10 rounded-md object-cover" src={service.image_url && service.image_url.split(',')[0]} alt="" referrerPolicy="no-referrer" />
+                              <img className="h-10 w-10 rounded-md object-cover" src={(service.image_url && service.image_url.split(',')[0]) || undefined} alt="" referrerPolicy="no-referrer" />
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-slate-900">{service.title}</div>
                               </div>
@@ -608,7 +614,7 @@ export default function Admin() {
                                   {variant.image_url && variant.image_url.split(',').filter(Boolean).length > 0 ? (
                                     <div className="flex -space-x-4 mr-4">
                                       {variant.image_url.split(',').filter(Boolean).slice(0, 3).map((imgUrl: string, idx: number) => (
-                                        <img key={idx} className="h-10 w-10 rounded-md object-cover border-2 border-white relative z-10" src={imgUrl.trim()} alt="" referrerPolicy="no-referrer" />
+                                        <img key={idx} className="h-10 w-10 rounded-md object-cover border-2 border-white relative z-10" src={imgUrl.trim() || undefined} alt="" referrerPolicy="no-referrer" />
                                       ))}
                                     </div>
                                   ) : (

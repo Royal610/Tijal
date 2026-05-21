@@ -63,7 +63,13 @@ export default function ProductDetails() {
   const fetchReviews = () => {
     fetch(`/api/services/${id}/reviews`)
       .then(res => res.json())
-      .then(data => setReviews(data))
+      .then(data => {
+        if (Array.isArray(data)) {
+          setReviews(data);
+        } else {
+          setReviews([]);
+        }
+      })
       .catch(err => console.error("Error fetching reviews:", err));
   };
 
@@ -81,8 +87,16 @@ export default function ProductDetails() {
         fetch(`/api/services/${id}/variants`)
           .then(res => res.json())
           .then(vars => {
-            setVariants(vars);
-            if (vars.length > 0) setSelectedVariant(vars[0]);
+            if (Array.isArray(vars)) {
+              setVariants(vars);
+              if (vars.length > 0) setSelectedVariant(vars[0]);
+            } else {
+              setVariants([]);
+            }
+          })
+          .catch(err => {
+            console.error('Error fetching variants', err);
+            setVariants([]);
           });
         setLoading(false);
       })
@@ -193,7 +207,7 @@ export default function ProductDetails() {
                 {allImages.length > 0 ? allImages.map((img, idx) => (
                   <img
                     key={idx}
-                    src={img}
+                    src={img || undefined}
                     alt={`Slide ${idx}`}
                     className={`absolute inset-0 w-full h-full object-contain bg-white transition-opacity duration-700 ${
                       idx === currentImageIndex ? 'opacity-100' : 'opacity-0'
@@ -202,7 +216,7 @@ export default function ProductDetails() {
                   />
                 )) : product?.image_url && (
                   <img 
-                    src={product.image_url} 
+                    src={product.image_url || undefined} 
                     alt={product.title} 
                     className="absolute inset-0 w-full h-full object-contain bg-white"
                     referrerPolicy="no-referrer"
@@ -247,7 +261,7 @@ export default function ProductDetails() {
                       }`}
                     >
                       <img 
-                        src={img} 
+                        src={img || undefined} 
                         alt={`Thumbnail ${idx + 1}`} 
                         className="w-full h-full object-cover bg-white" 
                         referrerPolicy="no-referrer" 
@@ -277,7 +291,7 @@ export default function ProductDetails() {
                         >
                           <div className="h-24 bg-slate-100 relative">
                             <img 
-                              src={displayImg} 
+                              src={displayImg || undefined} 
                               alt={variant.title} 
                               className="w-full h-full object-cover"
                               referrerPolicy="no-referrer"

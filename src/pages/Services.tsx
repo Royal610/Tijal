@@ -30,7 +30,12 @@ export default function Services() {
     fetch('/api/services')
       .then(res => res.json())
       .then(data => {
-        setServices(data);
+        if (Array.isArray(data)) {
+          setServices(data);
+        } else {
+          console.error('Failed to load services:', data);
+          setServices([]);
+        }
         setLoading(false);
       })
       .catch(err => {
@@ -115,7 +120,7 @@ export default function Services() {
                   <div key={service.id} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl transition-all duration-300 group flex flex-col">
                     <Link to={`/services/${service.id}`} className="block relative h-56 overflow-hidden">
                       <img 
-                        src={service.image_url} 
+                        src={service.image_url || undefined} 
                         alt={service.title} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                         referrerPolicy="no-referrer" 
