@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Plus, LogOut, LayoutDashboard, MessageSquare, Users } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -407,7 +408,7 @@ export default function Admin() {
         {activeTab === 'dashboard' && (
           <div>
             <h2 className="text-2xl font-bold text-slate-900 mb-6">Dashboard</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <div className="text-sm font-medium text-slate-500 mb-1">Total Products</div>
                 <div className="text-3xl font-bold text-slate-900">{dashboardStats.totalProducts}</div>
@@ -419,6 +420,31 @@ export default function Admin() {
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <div className="text-sm font-medium text-slate-500 mb-1">Total Web Enquiries</div>
                 <div className="text-3xl font-bold text-slate-900">{dashboardStats.totalInquiries}</div>
+              </div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+              <h3 className="text-lg font-semibold mb-4 text-slate-800">Analytics Overview</h3>
+              <div className="h-80 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={[
+                      { name: 'Products', count: dashboardStats.totalProducts },
+                      { name: 'Bulk Enquiries', count: dashboardStats.bulkInquiries },
+                      { name: 'Web Enquiries', count: dashboardStats.totalInquiries }
+                    ]}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} allowDecimals={false} />
+                    <Tooltip 
+                      cursor={{ fill: '#f1f5f9' }}
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Bar dataKey="count" fill="#F27C21" radius={[4, 4, 0, 0]} maxBarSize={60} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </div>
