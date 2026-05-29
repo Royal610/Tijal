@@ -47,39 +47,50 @@ async function startServer() {
   app.post('/api/admin/login', async (req, res) => {
     const { username = 'admin', password, token } = req.body;
     
-    const [adminRows] = await pool.query<any>('SELECT * FROM admins WHERE username = ?', [username]);
-    if (adminRows.length === 0) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-    
-    const adminUser = adminRows[0];
-    const bcrypt = await import('bcryptjs');
-    const validPassword = await bcrypt.default.compare(password, adminUser.password_hash);
-    
-    if (validPassword) {
-      // Check if 2FA is enabled
-      const is2faEnabled = adminUser.two_factor_enabled;
-
-      if (is2faEnabled) {
-        if (!token) {
-          return res.status(401).json({ error: '2FA token required', require2fa: true });
-        }
-        
-        const verified = speakeasy.totp.verify({
-          secret: adminUser.two_factor_secret,
-          encoding: 'base32',
-          token: token
-        });
-        
-        if (!verified) {
-          return res.status(401).json({ error: 'Invalid 2FA token' });
-        }
+    try {
+      const [adminRows] = await pool.query<any>('SELECT * FROM admins WHERE username = ?', [username]);
+      
+      // Check if we received a mock response (database connection failed)
+      if (adminRows.length > 0 && adminRows[0].count !== undefined && adminRows[0].username === undefined) {
+        return res.status(500).json({ error: 'Database connection failed. Please check your connection or initialize the database via setup.' });
       }
 
-      res.cookie('admin_auth', 'true', { httpOnly: true, maxAge: 24 * 60 * 60 * 1000, sameSite: 'none', secure: true });
-      res.json({ success: true });
-    } else {
-      res.status(401).json({ error: 'Invalid credentials' });
+      if (adminRows.length === 0) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      
+      const adminUser = adminRows[0];
+      const bcrypt = await import('bcryptjs');
+      const validPassword = await bcrypt.default.compare(password, adminUser.password_hash);
+      
+      if (validPassword) {
+        // Check if 2FA is enabled
+        const is2faEnabled = adminUser.two_factor_enabled;
+
+        if (is2faEnabled) {
+          if (!token) {
+            return res.status(401).json({ error: '2FA token required', require2fa: true });
+          }
+          
+          const verified = speakeasy.totp.verify({
+            secret: adminUser.two_factor_secret,
+            encoding: 'base32',
+            token: token
+          });
+          
+          if (!verified) {
+            return res.status(401).json({ error: 'Invalid 2FA token' });
+          }
+        }
+
+        res.cookie('admin_auth', 'true', { httpOnly: true, maxAge: 24 * 60 * 60 * 1000, sameSite: 'none', secure: true });
+        res.json({ success: true });
+      } else {
+        res.status(401).json({ error: 'Invalid credentials' });
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      res.status(500).json({ error: 'Internal server error during login' });
     }
   });
 

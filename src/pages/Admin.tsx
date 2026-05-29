@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
   const [require2fa, setRequire2fa] = useState(false);
@@ -81,7 +82,7 @@ export default function Admin() {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password, token })
+        body: JSON.stringify({ username, password, token })
       });
       const data = await res.json();
       if (res.ok) {
@@ -313,6 +314,17 @@ export default function Admin() {
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleLogin}>
             <div className="space-y-4">
+              <div>
+                <label className="text-sm font-semibold text-slate-700 block mb-2">Username</label>
+                <input
+                  type="text"
+                  required
+                  className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-slate-300 placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F27C21] focus:border-transparent transition-all sm:text-sm shadow-sm"
+                  placeholder="Enter administrator username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+              </div>
               <div>
                 <label className="text-sm font-semibold text-slate-700 block mb-2">Password</label>
                 <input
