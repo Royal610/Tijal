@@ -33,6 +33,16 @@ async function startServer() {
   app.use(cookieParser());
 
   // --- API Routes ---
+  
+  app.get('/api/setup-db', async (req, res) => {
+    try {
+      await initializeDb();
+      res.json({ success: true, message: 'Database initialized successfully!' });
+    } catch (error: any) {
+      console.error("Setup DB Error:", error);
+      res.status(500).json({ error: error.message, stack: error.stack, code: error.code });
+    }
+  });
 
   app.post('/api/admin/login', async (req, res) => {
     const { password, token } = req.body;
@@ -275,6 +285,11 @@ async function startServer() {
       res.sendFile(path.resolve(process.cwd(), 'dist', 'index.html'));
     });
   }
+
+  app.use((err: any, req: any, res: any, next: any) => {
+    console.error('Global Error Handler:', err);
+    res.status(500).json({ error: 'Internal Server Error', message: err.message, stack: process.env.NODE_ENV !== 'production' ? err.stack : undefined });
+  });
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
