@@ -36,17 +36,19 @@ const originalQuery = pool.query.bind(pool);
 };
 
 export async function initializeDb() {
-  // Create tables
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS services (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      title VARCHAR(255) NOT NULL,
-      description TEXT,
-      image_url TEXT,
-      category VARCHAR(255),
-      price VARCHAR(255)
-    )
-  `);
+  console.log('Attempting to initialize database tables...');
+  try {
+    // Create tables
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS services (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        image_url TEXT,
+        category VARCHAR(255),
+        price VARCHAR(255)
+      )
+    `);
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS testimonials (
@@ -174,6 +176,13 @@ export async function initializeDb() {
         await pool.query('INSERT INTO product_variants (service_id, title, price, image_url) VALUES (?, ?, ?, ?)', [serv.id, 'Standard Option', '₹100 / unit', 'https://picsum.photos/seed/def1/400/300']);
       }
     }
+  }
+  
+  console.log('Database initialization completed successfully.');
+  } catch (error: any) {
+    console.error('DATABASE INITIALIZATION FAILED: Please check your MySQL database credentials (DB_USER, DB_PASSWORD, DB_NAME, DB_HOST).');
+    console.error('MySQL Error:', error.message);
+    throw error;
   }
 }
 
