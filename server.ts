@@ -48,20 +48,40 @@ async function startServer() {
     const { username = 'admin', password, token } = req.body;
     
     try {
+      console.log('Login attempt for:', username);
       const [adminRows] = await pool.query<any>('SELECT * FROM admins WHERE username = ?', [username]);
       
       // Check if we received a mock response (database connection failed)
       if (adminRows.length > 0 && adminRows[0].count !== undefined && adminRows[0].username === undefined) {
+        console.log('Mock fallback response detected');
         return res.status(500).json({ error: 'Database connection failed. Please check your connection or initialize the database via setup.' });
       }
 
       if (adminRows.length === 0) {
-        return res.status(401).json({ error: 'Invalid credentials' });
+        console.log('Admin user not found');
+        return res.status(401).json({ error: 'Admin username not found' });
       }
       
       const adminUser = adminRows[0];
       const bcrypt = await import('bcryptjs');
-      const validPassword = await bcrypt.default.compare(password, adminUser.password_hash);
+      let validPassword = false;
+      
+      // If the stored hash looks like a bcrypt hash
+      if (adminUser.password_hash.startsWith('$2a$') || adminUser.password_hash.startsWith('$2b$')) {
+        validPassword = await bcrypt.default.compare(password, adminUser.password_hash);
+      } else {
+        // Fallback: Check if it's plain text (user manually updated DB)
+        validPassword = (password === adminUser.password_hash);
+        
+        // Auto-upgrade to bcrypt hash if valid
+        if (validPassword) {
+          const newHash = await bcrypt.default.hash(password, 10);
+          await pool.query('UPDATE admins SET password_hash = ? WHERE username = ?', [newHash, username]);
+          console.log('Upgraded plain-text password to bcrypt hash');
+        }
+      }
+      
+      console.log('Password valid:', validPassword);
       
       if (validPassword) {
         // Check if 2FA is enabled
