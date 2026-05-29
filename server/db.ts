@@ -25,7 +25,7 @@ const originalQuery = pool.query.bind(pool);
   try {
     return await originalQuery(...args);
   } catch (error: any) {
-    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'EAI_AGAIN' || error.code === 'ER_ACCESS_DENIED_ERROR' || error.code === 'ER_BAD_DB_ERROR') {
+    if (process.env.NODE_ENV !== 'production' && (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'EAI_AGAIN')) {
       // Return a shape that won't crash simple endpoints
       const mockRow = { count: 0, c: 0, setting_value: '0', title: '', price: '', image_url: '', id: 0 };
       const mockResult = [mockRow];
@@ -100,6 +100,24 @@ export async function initializeDb() {
       setting_value TEXT NOT NULL
     )
   `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS admins (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      username VARCHAR(255) UNIQUE NOT NULL,
+      password_hash VARCHAR(255) NOT NULL,
+      two_factor_secret VARCHAR(255),
+      two_factor_enabled BOOLEAN DEFAULT FALSE
+    )
+  `);
+
+  // Seed default admin
+  const [adminRows] = await pool.query<{count: number}[] & mysql.RowDataPacket[]>('SELECT COUNT(*) AS count FROM admins');
+  if (adminRows[0].count === 0) {
+    const bcrypt = await import('bcryptjs');
+    const hash = await bcrypt.default.hash('admin', 10);
+    await pool.query('INSERT INTO admins (username, password_hash) VALUES (?, ?)', ['admin', hash]);
+  }
 
   // Seed initial data if empty
   const [rows] = await pool.query<{count: number}[] & mysql.RowDataPacket[]>('SELECT COUNT(*) AS count FROM services');

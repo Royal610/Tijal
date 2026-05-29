@@ -45,23 +45,28 @@ async function startServer() {
   });
 
   app.post('/api/admin/login', async (req, res) => {
-    const { password, token } = req.body;
+    const { username = 'admin', password, token } = req.body;
     
-    if (password === ADMIN_PASSWORD) {
+    const [adminRows] = await pool.query<any>('SELECT * FROM admins WHERE username = ?', [username]);
+    if (adminRows.length === 0) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    const adminUser = adminRows[0];
+    const bcrypt = await import('bcryptjs');
+    const validPassword = await bcrypt.default.compare(password, adminUser.password_hash);
+    
+    if (validPassword) {
       // Check if 2FA is enabled
-      const [enabledRows] = await pool.query<any>('SELECT setting_value FROM admin_settings WHERE setting_key = "2fa_enabled"');
-      const is2faEnabled = enabledRows.length > 0 && enabledRows[0].setting_value === 'true';
+      const is2faEnabled = adminUser.two_factor_enabled;
 
       if (is2faEnabled) {
         if (!token) {
           return res.status(401).json({ error: '2FA token required', require2fa: true });
         }
         
-        const [secretRows] = await pool.query<any>('SELECT setting_value FROM admin_settings WHERE setting_key = "2fa_secret"');
-        const secretRow = secretRows[0];
-        
         const verified = speakeasy.totp.verify({
-          secret: secretRow.setting_value,
+          secret: adminUser.two_factor_secret,
           encoding: 'base32',
           token: token
         });
@@ -74,7 +79,7 @@ async function startServer() {
       res.cookie('admin_auth', 'true', { httpOnly: true, maxAge: 24 * 60 * 60 * 1000, sameSite: 'none', secure: true });
       res.json({ success: true });
     } else {
-      res.status(401).json({ error: 'Invalid password' });
+      res.status(401).json({ error: 'Invalid credentials' });
     }
   });
 
@@ -101,19 +106,22 @@ async function startServer() {
   };
 
   app.get('/api/admin/2fa/setup', requireAdmin, async (req, res) => {
-    const [enabledRows] = await pool.query<any>('SELECT setting_value FROM admin_settings WHERE setting_key = "2fa_enabled"');
+    const username = 'admin';
+    const [adminRows] = await pool.query<any>('SELECT * FROM admins WHERE username = ?', [username]);
     
-    if (enabledRows.length > 0 && enabledRows[0].setting_value === 'true') {
+    if (adminRows.length === 0) return res.status(404).json({ error: 'Admin not found' });
+    const adminUser = adminRows[0];
+    
+    if (adminUser.two_factor_enabled) {
       return res.json({ alreadyEnabled: true });
     }
 
-    const [secretRows] = await pool.query<any>('SELECT setting_value FROM admin_settings WHERE setting_key = "2fa_secret"');
-    let base32Secret = secretRows.length > 0 ? secretRows[0].setting_value : undefined;
+    let base32Secret = adminUser.two_factor_secret;
     
     if (!base32Secret) {
       const secret = speakeasy.generateSecret({ name: 'Printing Business Admin' });
       base32Secret = secret.base32;
-      await pool.query('INSERT INTO admin_settings (setting_key, setting_value) VALUES ("2fa_secret", ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)', [base32Secret]);
+      await pool.query('UPDATE admins SET two_factor_secret = ? WHERE username = ?', [base32Secret, username]);
     }
     
     const otpauth = speakeasy.otpauthURL({ secret: base32Secret, label: 'Printing Business Admin', encoding: 'base32' });
@@ -124,16 +132,20 @@ async function startServer() {
 
   app.post('/api/admin/2fa/verify', requireAdmin, async (req, res) => {
     const { token } = req.body;
-    const [secretRows] = await pool.query<any>('SELECT setting_value FROM admin_settings WHERE setting_key = "2fa_secret"');
+    const username = 'admin';
+    const [adminRows] = await pool.query<any>('SELECT * FROM admins WHERE username = ?', [username]);
+    
+    if (adminRows.length === 0) return res.status(404).json({ error: 'Admin not found' });
+    const adminUser = adminRows[0];
     
     const verified = speakeasy.totp.verify({
-      secret: secretRows[0].setting_value,
+      secret: adminUser.two_factor_secret,
       encoding: 'base32',
       token: token
     });
     
     if (verified) {
-      await pool.query('INSERT INTO admin_settings (setting_key, setting_value) VALUES ("2fa_enabled", "true") ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)');
+      await pool.query('UPDATE admins SET two_factor_enabled = TRUE WHERE username = ?', [username]);
       res.json({ success: true });
     } else {
       res.status(400).json({ error: 'Invalid token' });
