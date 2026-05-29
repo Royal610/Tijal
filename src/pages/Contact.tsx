@@ -7,6 +7,23 @@ export default function Contact() {
   const searchParams = new URLSearchParams(location.search);
   const initialProduct = searchParams.get('product');
   const initialQuantity = searchParams.get('quantity');
+  const [phoneNumberStr, setPhoneNumberStr] = useState("919203700114");
+
+  useEffect(() => {
+    fetch('/api/settings/contact')
+      .then(res => res.json())
+      .then(data => {
+        if (data.whatsapp) setPhoneNumberStr(data.whatsapp);
+      })
+      .catch(console.error);
+  }, []);
+
+  const formatDisplayPhone = (num: string) => {
+    if (num.startsWith('91') && num.length === 12) {
+      return `+91 ${num.substring(2, 7)} ${num.substring(7)}`;
+    }
+    return num;
+  };
 
   const initialMessage = initialProduct 
     ? `I am interested in inquiring about ${initialProduct}${initialQuantity ? ` (Quantity: ${initialQuantity})` : ''}. Please provide more information.`
@@ -179,7 +196,7 @@ export default function Contact() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lg font-semibold text-slate-900">Phone</h3>
-                    <p className="mt-1 text-slate-600">+91 92037 00114<br />Mon-Fri 9am to 6pm</p>
+                    <p className="mt-1 text-slate-600">{formatDisplayPhone(phoneNumberStr)}<br />Mon-Fri 9am to 6pm</p>
                   </div>
                 </div>
 

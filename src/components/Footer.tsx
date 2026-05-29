@@ -1,7 +1,26 @@
 import { Link } from 'react-router-dom';
 import { Printer, Mail, Phone, MapPin, Facebook, Twitter, Instagram } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function Footer() {
+  const [phoneNumber, setPhoneNumber] = useState("919203700114");
+
+  useEffect(() => {
+    fetch('/api/settings/contact')
+      .then(res => res.json())
+      .then(data => {
+        if (data.whatsapp) setPhoneNumber(data.whatsapp);
+      })
+      .catch(console.error);
+  }, []);
+
+  const formatDisplayPhone = (num: string) => {
+    if (num.startsWith('91') && num.length === 12) {
+      return `+91 ${num.substring(2, 7)} ${num.substring(7)}`;
+    }
+    return num;
+  };
+
   return (
     <footer className="bg-slate-900 text-slate-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -51,7 +70,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-blue-500 shrink-0" />
-                <span>+91 9203700114, 9074900114</span>
+                <span>{formatDisplayPhone(phoneNumber)}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-blue-500 shrink-0" />

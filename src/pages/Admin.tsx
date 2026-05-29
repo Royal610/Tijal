@@ -11,10 +11,40 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'services' | 'testimonials' | 'inquiries' | 'settings'>('dashboard');
   const [dashboardStats, setDashboardStats] = useState({ totalProducts: 0, bulkInquiries: 0, totalInquiries: 0 });
   const [setup2faInfo, setSetup2faInfo] = useState<{qrCodeUrl: string, secret: string, alreadyEnabled?: boolean} | null>(null);
+  const [counters, setCounters] = useState({ clients: '', prints: '', experience: '', quality: '' });
+  const [whatsappSetting, setWhatsappSetting] = useState('');
+
+  useEffect(() => {
+    if (activeTab === 'settings') {
+      fetch('/api/settings/counters').then(res => res.json()).then(data => {
+        setCounters({
+          clients: data.clients || '',
+          prints: data.prints || '',
+          experience: data.experience || '',
+          quality: data.quality || ''
+        });
+      });
+      fetch('/api/settings/contact').then(res => res.json()).then(data => {
+        setWhatsappSetting(data.whatsapp || '');
+      });
+    }
+  }, [activeTab]);
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await fetch('/api/admin/settings/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ whatsapp: whatsappSetting })
+      });
+      alert('Contact settings saved successfully');
+    } catch (err) {
+      alert('Error updating settings');
+    }
+  };
   const [setupToken, setSetupToken] = useState('');
   const [loading, setLoading] = useState(true);
-  
-  const [counters, setCounters] = useState({ clients: '', prints: '', experience: '', quality: '' });
 
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -465,7 +495,31 @@ export default function Admin() {
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Security Settings</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Website Settings</h2>
+            
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8 max-w-xl">
+              <h3 className="text-lg font-semibold mb-4">Contact Details</h3>
+              <form onSubmit={handleSaveSettings} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-slate-700 block mb-1">WhatsApp Number (with country code, no space)</label>
+                  <input
+                    type="text"
+                    value={whatsappSetting}
+                    onChange={(e) => setWhatsappSetting(e.target.value)}
+                    placeholder="e.g. 919203700114"
+                    className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#F27C21]"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="bg-[#F27C21] hover:bg-[#e06b12] text-white px-4 py-2 rounded-lg transition-colors font-medium"
+                >
+                  Save Contact Settings
+                </button>
+              </form>
+            </div>
+
+            <h2 className="text-2xl font-bold text-slate-900 mb-6 mt-12">Security Settings</h2>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8 max-w-xl">
               <h3 className="text-lg font-semibold mb-4">Two-Factor Authentication (2FA)</h3>
               

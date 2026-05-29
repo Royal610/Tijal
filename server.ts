@@ -199,6 +199,22 @@ async function startServer() {
     res.json({ success: true });
   });
 
+  app.get('/api/settings/contact', async (req, res) => {
+    const [whatsapp] = await pool.query<any>('SELECT setting_value FROM admin_settings WHERE setting_key = "contact_whatsapp"');
+    
+    res.json({
+      whatsapp: whatsapp.length > 0 ? whatsapp[0].setting_value : '919203700114',
+    });
+  });
+
+  app.post('/api/admin/settings/contact', requireAdmin, async (req, res) => {
+    const { whatsapp } = req.body;
+    
+    if (whatsapp !== undefined) await pool.query('INSERT INTO admin_settings (setting_key, setting_value) VALUES ("contact_whatsapp", ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)', [String(whatsapp)]);
+    
+    res.json({ success: true });
+  });
+
   app.get('/api/services/:id/variants', async (req, res) => {
     const [variants] = await pool.query<any>('SELECT * FROM product_variants WHERE service_id = ?', [req.params.id]);
     res.json(variants);
