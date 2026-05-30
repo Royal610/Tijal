@@ -306,6 +306,9 @@ export default function Admin() {
                 <input
                   type="text"
                   required
+                  maxLength={50}
+                  pattern="^[a-zA-Z0-9_\-]+$"
+                  title="Username must contain only alphanumeric characters, underscores, or hyphens."
                   className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-slate-300 placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F27C21] focus:border-transparent transition-all sm:text-sm shadow-sm"
                   placeholder="Enter administrator username"
                   value={username}
@@ -317,6 +320,7 @@ export default function Admin() {
                 <input
                   type="password"
                   required
+                  maxLength={100}
                   className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-slate-300 placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F27C21] focus:border-transparent transition-all sm:text-sm shadow-sm opacity-90"
                   placeholder="Enter administrator password"
                   value={password}

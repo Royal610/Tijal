@@ -408,6 +408,9 @@ export default function ProductDetails() {
                   <input 
                     type="text" 
                     required 
+                    maxLength={100}
+                    pattern="^[a-zA-Z\s\.]+$"
+                    title="Name can only contain letters, spaces, and periods."
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                     value={newReview.reviewer_name}
                     onChange={(e) => setNewReview({ ...newReview, reviewer_name: e.target.value })}
@@ -432,6 +435,7 @@ export default function ProductDetails() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Review</label>
                   <textarea 
                     required 
+                    maxLength={1000}
                     rows={4}
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors resize-none"
                     value={newReview.content}
@@ -493,6 +497,9 @@ export default function ProductDetails() {
                 <input 
                   type="text" 
                   required 
+                  maxLength={100}
+                  pattern="^[a-zA-Z\s\.]+$"
+                  title="Name can only contain letters, spaces, and periods."
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                   value={inquiryForm.name}
                   onChange={(e) => setInquiryForm({ ...inquiryForm, name: e.target.value })}
@@ -504,6 +511,7 @@ export default function ProductDetails() {
                   <input 
                     type="email" 
                     required 
+                    maxLength={100}
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                     value={inquiryForm.email}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, email: e.target.value })}
@@ -514,6 +522,9 @@ export default function ProductDetails() {
                   <input 
                     type="tel" 
                     required 
+                    maxLength={15}
+                    pattern="^[0-9+\-\s()]*$"
+                    title="Phone number can only contain digits and standard symbols like +, -, spaces, or parentheses."
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                     value={inquiryForm.phone}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
@@ -524,6 +535,7 @@ export default function ProductDetails() {
                 <label className="block text-sm font-medium text-slate-700 mb-1">Message / Requirements</label>
                 <textarea 
                   required 
+                  maxLength={2000}
                   rows={3}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none transition-colors"
                   value={inquiryForm.message}

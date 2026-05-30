@@ -45,8 +45,21 @@ async function startServer() {
   });
 
   app.post('/api/admin/login', async (req, res) => {
-    const { username = 'admin', password, token } = req.body;
+    let { username = 'admin', password, token } = req.body;
     
+    // Add validation
+    if (!username || typeof username !== 'string' || username.length > 50 || username.trim().length === 0) {
+      return res.status(400).json({ error: 'Invalid username' });
+    }
+    if (!password || typeof password !== 'string' || password.length === 0) {
+      return res.status(400).json({ error: 'Password is required' });
+    }
+    if (token && (typeof token !== 'string' || token.length > 20)) {
+       return res.status(400).json({ error: 'Invalid token format' });
+    }
+
+    username = username.trim();
+
     try {
       console.log('Login attempt for:', username);
       const [adminRows] = await pool.query<any>('SELECT * FROM admins WHERE username = ?', [username]);
@@ -254,9 +267,21 @@ async function startServer() {
   });
 
   app.post('/api/services/:id/reviews', async (req, res) => {
-    const { reviewer_name, content, rating } = req.body;
+    let { reviewer_name, content, rating } = req.body;
     const service_id = req.params.id;
-    const [info] = await pool.query<any>('INSERT INTO product_reviews (service_id, reviewer_name, content, rating) VALUES (?, ?, ?, ?)', [service_id, reviewer_name, content, rating || 5]);
+    
+    if (!reviewer_name || typeof reviewer_name !== 'string' || reviewer_name.trim().length === 0 || reviewer_name.length > 255) {
+      return res.status(400).json({ error: 'Valid reviewer name is required' });
+    }
+    if (!content || typeof content !== 'string' || content.trim().length === 0 || content.length > 2000) {
+      return res.status(400).json({ error: 'Review content is required' });
+    }
+    
+    reviewer_name = reviewer_name.trim();
+    content = content.trim();
+    rating = typeof rating === 'number' ? Math.max(1, Math.min(5, rating)) : 5;
+
+    const [info] = await pool.query<any>('INSERT INTO product_reviews (service_id, reviewer_name, content, rating) VALUES (?, ?, ?, ?)', [service_id, reviewer_name, content, rating]);
     res.json({ id: info.insertId });
   });
 
@@ -295,7 +320,27 @@ async function startServer() {
   });
 
   app.post('/api/inquiries', async (req, res) => {
-    const { name, email, phone, message } = req.body;
+    let { name, email, phone, message } = req.body;
+    
+    // Basic validation
+    if (!name || typeof name !== 'string' || name.trim().length === 0 || name.length > 255) {
+      return res.status(400).json({ error: 'Valid name is required' });
+    }
+    if (!email || typeof email !== 'string' || !/^\S+@\S+\.\S+$/.test(email) || email.length > 255) {
+      return res.status(400).json({ error: 'Valid email is required' });
+    }
+    if (phone && (typeof phone !== 'string' || phone.length > 50 || !/^[0-9+\-\s()]*$/.test(phone))) {
+      return res.status(400).json({ error: 'Valid phone number is required' });
+    }
+    if (!message || typeof message !== 'string' || message.trim().length === 0 || message.length > 5000) {
+      return res.status(400).json({ error: 'Message is required and must not exceed 5000 characters' });
+    }
+    
+    name = name.trim();
+    email = email.trim();
+    phone = phone ? phone.trim() : null;
+    message = message.trim();
+
     const [info] = await pool.query<any>('INSERT INTO inquiries (name, email, phone, message) VALUES (?, ?, ?, ?)', [name, email, phone, message]);
     res.json({ success: true, id: info.insertId });
   });

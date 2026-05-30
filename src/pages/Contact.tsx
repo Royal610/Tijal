@@ -95,6 +95,9 @@ export default function Contact() {
                   id="name"
                   name="name"
                   required
+                  maxLength={100}
+                  pattern="^[a-zA-Z\s\.]+$"
+                  title="Name can only contain letters, spaces, and periods."
                   value={formData.name}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
@@ -110,6 +113,7 @@ export default function Contact() {
                     id="email"
                     name="email"
                     required
+                    maxLength={100}
                     value={formData.email}
                     onChange={handleChange}
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
@@ -122,6 +126,9 @@ export default function Contact() {
                     type="tel"
                     id="phone"
                     name="phone"
+                    maxLength={15}
+                    pattern="^[0-9+\-\s()]*$"
+                    title="Phone number can only contain digits and standard symbols like +, -, spaces, or parentheses."
                     value={formData.phone}
                     onChange={handleChange}
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
@@ -136,6 +143,7 @@ export default function Contact() {
                   id="message"
                   name="message"
                   required
+                  maxLength={2000}
                   rows={5}
                   value={formData.message}
                   onChange={handleChange}
