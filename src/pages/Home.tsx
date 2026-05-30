@@ -49,7 +49,7 @@ export default function Home() {
             <div className="absolute inset-0 w-full h-full">
               <div className="absolute inset-0 bg-gradient-to-r from-[#E5E5E5] via-[#E5E5E5]/95 to-transparent z-10 w-[70%]"></div>
               <img 
-                src="https://images.unsplash.com/photo-1598257006458-087169a1f08d?auto=format&fit=crop&q=80&w=1200"
+                src="/images/home-banner.png"
                 alt="ID Cards"
                 className="w-full h-full object-cover object-[50%_20%] absolute right-0 inset-y-0 group-hover:scale-105 transition-transform duration-700"
                 referrerPolicy="no-referrer"
@@ -67,9 +67,29 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Featured Original Products (Preserving Previous Functionality) */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full mt-4">
+         <h2 className="text-2xl font-bold text-center text-slate-800 mb-8 font-sans tracking-tight">Our Core Printing Services</h2>
+         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {featuredServices.map((service) => (
+              <Link to={`/services/${service.id}`} key={service.id} className="group flex flex-col h-full cursor-pointer">
+                <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative rounded-md">
+                  <img src={service.image_url || undefined} alt={service.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerPolicy="no-referrer" />
+                </div>
+                <h3 className="text-center font-semibold text-slate-700 mt-3 text-[14px] group-hover:text-blue-600">{service.title}</h3>
+              </Link>
+            ))}
+         </div>
+         <div className="text-center mt-10">
+            <Link to="/services" className="inline-block bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-8 rounded text-sm transition-colors shadow-sm">
+                View All Products & Services
+            </Link>
+         </div>
+      </section>
+
       {/* Shop for Your Business Needs */}
-      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-        <h2 className="text-[30px] font-bold text-center text-slate-800 mb-10 font-sans tracking-tight">Shop for Your Business Needs</h2>
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full mb-10 border-t border-slate-100 mt-8">
+        <h2 className="text-[30px] font-bold text-center text-slate-800 mb-10 font-sans tracking-tight mt-6">Shop for Your Business Needs</h2>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="group flex flex-col h-full">
@@ -120,26 +140,6 @@ export default function Home() {
             <h3 className="text-center font-bold text-slate-800 mt-5 text-[15px] transition-colors">Gifts</h3>
           </div>
         </div>
-      </section>
-
-      {/* Featured Original Products (Preserving Previous Functionality) */}
-      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full mb-10 border-t border-slate-100 mt-8">
-         <h2 className="text-2xl font-bold text-center text-slate-800 mb-8 font-sans tracking-tight">Our Core Printing Services</h2>
-         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {featuredServices.map((service) => (
-              <Link to={`/services/${service.id}`} key={service.id} className="group flex flex-col h-full cursor-pointer">
-                <div className="flex-grow aspect-square overflow-hidden bg-slate-100 flex items-center justify-center relative rounded-md">
-                  <img src={service.image_url || undefined} alt={service.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerPolicy="no-referrer" />
-                </div>
-                <h3 className="text-center font-semibold text-slate-700 mt-3 text-[14px] group-hover:text-blue-600">{service.title}</h3>
-              </Link>
-            ))}
-         </div>
-         <div className="text-center mt-10">
-            <Link to="/services" className="inline-block bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-8 rounded text-sm transition-colors shadow-sm">
-                View All Products & Services
-            </Link>
-         </div>
       </section>
 
     </div>
