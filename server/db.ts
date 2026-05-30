@@ -198,6 +198,49 @@ export async function initializeDb() {
     }
   }
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS about_counters (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      key_name VARCHAR(50) UNIQUE,
+      label VARCHAR(255),
+      value VARCHAR(255)
+    )
+  `);
+
+  const [counterRows] = await pool.query<{count: number}[] & mysql.RowDataPacket[]>('SELECT COUNT(*) AS count FROM about_counters');
+  if (counterRows[0].count === 0) {
+    const initialCounters = [
+        ['clients', 'Happy Clients', '5,000+'],
+        ['prints', 'Prints Delivered', '1M+'],
+        ['experience', 'Years Experience', '15+'],
+        ['quality', 'Quality Guaranteed', '100%']
+    ];
+    for (const c of initialCounters) {
+        await pool.query('INSERT INTO about_counters (key_name, label, value) VALUES (?, ?, ?)', c);
+    }
+  }
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS directors (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(255),
+      role VARCHAR(255),
+      image_url TEXT,
+      bio TEXT
+    )
+  `);
+
+  const [directorRows] = await pool.query<{count: number}[] & mysql.RowDataPacket[]>('SELECT COUNT(*) AS count FROM directors');
+  if (directorRows[0].count === 0) {
+    const initialDirectors = [
+        ['Director Name 1', 'Managing Director', 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400', 'Expert in print technology and business strategy.'],
+        ['Director Name 2', 'Executive Director', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400', 'Dedicated to operational excellence and client satisfaction.']
+    ];
+    for (const d of initialDirectors) {
+        await pool.query('INSERT INTO directors (name, role, image_url, bio) VALUES (?, ?, ?, ?)', d);
+    }
+  }
+
   // Seed product variants for any product without variants
   const [allServices] = await pool.query<{id: number, title: string}[] & mysql.RowDataPacket[]>('SELECT id, title FROM services');
 

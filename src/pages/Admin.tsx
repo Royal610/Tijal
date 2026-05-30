@@ -35,6 +35,9 @@ export default function Admin() {
   const [services, setServices] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [inquiries, setInquiries] = useState<any[]>([]);
+  const [aboutCounters, setAboutCounters] = useState<any[]>([]);
+  const [directors, setDirectors] = useState<any[]>([]);
+  const [saveStatus, setSaveStatus] = useState<string>('');
 
   // Form states
   const [newService, setNewService] = useState({ title: '', description: '', image_url: '', category: '', price: '' });
@@ -146,9 +149,67 @@ export default function Admin() {
         const res = await fetch('/api/inquiries');
         const data = await res.json();
         if (Array.isArray(data)) setInquiries(data);
+      } else if (activeTab === 'about') {
+        const res = await fetch('/api/about-counters');
+        const data = await res.json();
+        if (Array.isArray(data)) setAboutCounters(data);
+      } else if (activeTab === 'directors') {
+        const res = await fetch('/api/directors');
+        const data = await res.json();
+        if (Array.isArray(data)) setDirectors(data);
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleAboutCounterChange = (index: number, field: string, value: string) => {
+    const newCounters = [...aboutCounters];
+    newCounters[index][field] = value;
+    setAboutCounters(newCounters);
+  };
+
+  const saveAboutCounters = async () => {
+    try {
+      setSaveStatus('Saving...');
+      const res = await fetch('/api/about-counters', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(aboutCounters)
+      });
+      if (res.ok) {
+        setSaveStatus('Saved successfully!');
+        setTimeout(() => setSaveStatus(''), 3000);
+      } else {
+        setSaveStatus('Failed to save');
+      }
+    } catch (err) {
+      setSaveStatus('Error saving');
+    }
+  };
+
+  const handleDirectorChange = (index: number, field: string, value: string) => {
+    const newDirectors = [...directors];
+    newDirectors[index][field] = value;
+    setDirectors(newDirectors);
+  };
+
+  const saveDirectors = async () => {
+    try {
+      setSaveStatus('Saving directors...');
+      const res = await fetch('/api/directors', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(directors)
+      });
+      if (res.ok) {
+        setSaveStatus('Directors saved successfully!');
+        setTimeout(() => setSaveStatus(''), 3000);
+      } else {
+        setSaveStatus('Failed to save directors');
+      }
+    } catch (err) {
+      setSaveStatus('Error saving directors');
     }
   };
 
@@ -394,6 +455,18 @@ export default function Admin() {
             <MessageSquare className="mr-3 h-5 w-5" /> Inquiries
           </button>
           <button
+            onClick={() => setActiveTab('about')}
+            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'about' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
+          >
+            <LayoutDashboard className="mr-3 h-5 w-5" /> About Counters
+          </button>
+          <button
+            onClick={() => setActiveTab('directors')}
+            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'directors' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
+          >
+            <Users className="mr-3 h-5 w-5" /> Manage Directors
+          </button>
+          <button
             onClick={() => { setActiveTab('settings'); setup2fa(); }}
             className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'settings' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
           >
@@ -455,6 +528,131 @@ export default function Admin() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* About Counters Tab */}
+        {activeTab === 'about' && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-slate-900">About Page Counters</h2>
+              {saveStatus && (
+                <span className={`text-sm font-medium px-4 py-2 rounded ${saveStatus.includes('successfully') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  {saveStatus}
+                </span>
+              )}
+            </div>
+            
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+              <p className="text-slate-600 mb-6">Update the statistics that appear on the About Us page.</p>
+              <div className="space-y-6">
+                {aboutCounters.map((counter, index) => (
+                  <div key={counter.id || index} className="grid grid-cols-1 md:grid-cols-2 gap-4 border-b pb-4 last:border-0">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1 capitalize">{counter.key_name || 'Label'}</label>
+                      <input 
+                        type="text" 
+                        value={counter.label || ''} 
+                        onChange={(e) => handleAboutCounterChange(index, 'label', e.target.value)}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-[#F27C21]"
+                        placeholder="Label (e.g., Happy Clients)"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Value</label>
+                      <input 
+                        type="text" 
+                        value={counter.value || ''} 
+                        onChange={(e) => handleAboutCounterChange(index, 'value', e.target.value)}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-[#F27C21]"
+                        placeholder="Value (e.g., 5,000+)"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6">
+                <button 
+                  onClick={saveAboutCounters}
+                  className="bg-[#F27C21] hover:bg-[#d66b1c] text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Directors Management Tab */}
+        {activeTab === 'directors' && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-slate-900">Manage Directors</h2>
+              {saveStatus && (
+                <span className={`text-sm font-medium px-4 py-2 rounded ${saveStatus.includes('successfully') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  {saveStatus}
+                </span>
+              )}
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {directors.map((director, index) => (
+                <div key={director.id || index} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                  <h3 className="font-bold text-slate-800 mb-4 border-b pb-2">Director {index + 1}</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+                      <input 
+                        type="text" 
+                        value={director.name || ''} 
+                        onChange={(e) => handleDirectorChange(index, 'name', e.target.value)}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-[#F27C21]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Role/Title</label>
+                      <input 
+                        type="text" 
+                        value={director.role || ''} 
+                        onChange={(e) => handleDirectorChange(index, 'role', e.target.value)}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-[#F27C21]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Image URL</label>
+                      <input 
+                        type="text" 
+                        value={director.image_url || ''} 
+                        onChange={(e) => handleDirectorChange(index, 'image_url', e.target.value)}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-[#F27C21]"
+                        placeholder="Paste image link here"
+                      />
+                      {director.image_url && (
+                        <div className="mt-2 w-20 h-20 rounded-lg overflow-hidden border">
+                          <img src={director.image_url} alt="Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Brief Bio</label>
+                      <textarea 
+                        value={director.bio || ''} 
+                        onChange={(e) => handleDirectorChange(index, 'bio', e.target.value)}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-[#F27C21] h-24"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 flex justify-center">
+              <button 
+                onClick={saveDirectors}
+                className="bg-[#F27C21] hover:bg-[#d66b1c] text-white px-10 py-3 rounded-lg font-bold transition-colors shadow-md"
+              >
+                Save All Director Changes
+              </button>
             </div>
           </div>
         )}

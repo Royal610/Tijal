@@ -313,6 +313,42 @@ async function startServer() {
     res.json({ success: true });
   });
 
+  // About Counters API
+  app.get('/api/about-counters', async (req, res) => {
+    const [counters] = await pool.query<any>('SELECT * FROM about_counters');
+    res.json(counters);
+  });
+
+  app.put('/api/about-counters', requireAdmin, async (req, res) => {
+    const counters = req.body;
+    if (Array.isArray(counters)) {
+      for (const c of counters) {
+        if (c.id && c.value !== undefined) {
+          await pool.query('UPDATE about_counters SET value = ?, label = ? WHERE id = ?', [c.value, c.label, c.id]);
+        }
+      }
+    }
+    res.json({ success: true });
+  });
+
+  // Directors API
+  app.get('/api/directors', async (req, res) => {
+    const [directors] = await pool.query<any>('SELECT * FROM directors');
+    res.json(directors);
+  });
+
+  app.put('/api/directors', requireAdmin, async (req, res) => {
+    const directors = req.body;
+    if (Array.isArray(directors)) {
+      for (const d of directors) {
+        if (d.id) {
+          await pool.query('UPDATE directors SET name = ?, role = ?, image_url = ?, bio = ? WHERE id = ?', [d.name, d.role, d.image_url, d.bio, d.id]);
+        }
+      }
+    }
+    res.json({ success: true });
+  });
+
   // Inquiries API
   app.get('/api/inquiries', requireAdmin, async (req, res) => {
     const [inquiries] = await pool.query<any>('SELECT * FROM inquiries ORDER BY created_at DESC');

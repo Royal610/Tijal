@@ -3,11 +3,39 @@ import { useState, useEffect } from 'react';
 
 export default function About() {
   const [counters, setCounters] = useState({
-    clients: "5,000+",
-    prints: "1M+",
-    experience: "15+",
-    quality: "100%"
+    clients: { value: "5,000+", label: "Happy Clients" },
+    prints: { value: "1M+", label: "Prints Delivered" },
+    experience: { value: "15+", label: "Years Experience" },
+    quality: { value: "100%", label: "Quality Guaranteed" }
   });
+  const [directors, setDirectors] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/about-counters')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const newCounters = { ...counters };
+          data.forEach(c => {
+            if (newCounters[c.key_name as keyof typeof newCounters]) {
+              newCounters[c.key_name as keyof typeof newCounters] = {
+                value: c.value,
+                label: c.label || newCounters[c.key_name as keyof typeof newCounters].label
+              };
+            }
+          });
+          setCounters(newCounters);
+        }
+      })
+      .catch(console.error);
+
+    fetch('/api/directors')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setDirectors(data);
+      })
+      .catch(console.error);
+  }, []);
 
   return (
     <div className="bg-white scroll-smooth">
@@ -120,6 +148,41 @@ export default function About() {
         </div>
       </div>
 
+      {/* Leadership Section */}
+      {directors.length > 0 && (
+        <section className="py-24 bg-white border-t border-slate-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-sm font-bold tracking-widest text-[#F27C21] uppercase mb-3">Our Leadership</h2>
+              <h3 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">Guided by <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800">Vision</span> & Passion</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 max-w-5xl mx-auto">
+              {directors.map((director) => (
+                <div key={director.id} className="group relative">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-[#F27C21] to-[#d5a46d] rounded-[2.5rem] transform rotate-2 opacity-10 group-hover:rotate-4 transition-transform duration-500"></div>
+                  <div className="relative bg-white rounded-[2.5rem] overflow-hidden shadow-xl border border-slate-100 transition-transform duration-500 group-hover:-translate-y-2">
+                    <div className="aspect-[4/5] overflow-hidden relative">
+                      <img 
+                        src={director.image_url} 
+                        alt={director.name} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
+                    </div>
+                    <div className="p-10 text-center">
+                      <h3 className="text-2xl font-bold text-slate-900 mb-2">{director.name}</h3>
+                      <p className="text-[#F27C21] font-bold uppercase tracking-[0.2em] text-xs mb-4">{director.role}</p>
+                      <p className="text-slate-600 font-sans leading-relaxed italic">"{director.bio}"</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Stats/Values */}
       <div className="bg-white py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -130,10 +193,10 @@ export default function About() {
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             {[
-              { icon: <Users className="h-8 w-8" />, stat: counters.clients, label: "Happy Clients", color: "text-[#F27C21]", bg: "bg-[#F27C21]/10" },
-              { icon: <Printer className="h-8 w-8" />, stat: counters.prints, label: "Prints Delivered", color: "text-blue-600", bg: "bg-blue-100" },
-              { icon: <Award className="h-8 w-8" />, stat: counters.experience, label: "Years Experience", color: "text-emerald-600", bg: "bg-emerald-100" },
-              { icon: <ShieldCheck className="h-8 w-8" />, stat: counters.quality, label: "Quality Guaranteed", color: "text-purple-600", bg: "bg-purple-100" },
+              { icon: <Users className="h-8 w-8" />, stat: counters.clients.value, label: counters.clients.label, color: "text-[#F27C21]", bg: "bg-[#F27C21]/10" },
+              { icon: <Printer className="h-8 w-8" />, stat: counters.prints.value, label: counters.prints.label, color: "text-blue-600", bg: "bg-blue-100" },
+              { icon: <Award className="h-8 w-8" />, stat: counters.experience.value, label: counters.experience.label, color: "text-emerald-600", bg: "bg-emerald-100" },
+              { icon: <ShieldCheck className="h-8 w-8" />, stat: counters.quality.value, label: counters.quality.label, color: "text-purple-600", bg: "bg-purple-100" },
             ].map((item, idx) => (
               <div key={idx} className="group text-center p-8 rounded-3xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                 <div className={`mx-auto h-20 w-20 ${item.bg} ${item.color} rounded-2xl flex items-center justify-center mb-6 transform group-hover:-translate-y-2 transition-all duration-300 shadow-sm`}>
