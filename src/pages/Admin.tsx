@@ -89,8 +89,12 @@ export default function Admin() {
         setPassword('');
         setToken('');
         setRequire2fa(false);
+        setSetup2faInfo(null);
       } else if (res.status === 401 && data.require2fa) {
         setRequire2fa(true);
+      } else if (res.status === 401 && data.setup2fa) {
+        setRequire2fa(true);
+        setSetup2faInfo(data.setup2faInfo);
       } else {
         alert(data.error || 'Invalid login');
       }
@@ -321,6 +325,15 @@ export default function Admin() {
               </div>
               {require2fa && (
                 <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                  {setup2faInfo && (
+                    <div className="mb-4 flex flex-col items-center">
+                      <p className="text-sm text-slate-800 font-bold mb-2">Setup Google Authenticator</p>
+                      <img src={setup2faInfo.qrCodeUrl} alt="2FA QR Code" className="w-40 h-40 border rounded-lg shadow-sm mb-2" />
+                      <p className="text-xs text-slate-500 text-center px-4">
+                        Scan the QR code with Google Authenticator, then enter the 6-digit code below to login.
+                      </p>
+                    </div>
+                  )}
                   <label className="text-sm font-semibold text-slate-700 block mb-2">2FA Token</label>
                   <input
                     type="text"
@@ -331,7 +344,7 @@ export default function Admin() {
                     value={token}
                     onChange={(e) => setToken(e.target.value)}
                   />
-                  <p className="mt-2 text-xs text-slate-500 text-center">Open Google Authenticator for your code</p>
+                  {!setup2faInfo && <p className="mt-2 text-xs text-slate-500 text-center">Open Google Authenticator for your code</p>}
                 </div>
               )}
             </div>

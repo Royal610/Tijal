@@ -88,6 +88,35 @@ async function startServer() {
           if (!verified) {
             return res.status(401).json({ error: 'Invalid 2FA token' });
           }
+        } else {
+          // Force 2FA setup on login
+          let base32Secret = adminUser.two_factor_secret;
+          
+          if (!base32Secret) {
+            const secret = speakeasy.generateSecret({ name: 'Printing Business Admin' });
+            base32Secret = secret.base32;
+            await pool.query('UPDATE admins SET two_factor_secret = ? WHERE username = ?', [base32Secret, username]);
+          }
+
+          if (!token) {
+            const otpauth = `otpauth://totp/PrintingBusiness?secret=${base32Secret}`;
+            const qrCodeUrl = await QRCode.toDataURL(otpauth);
+            return res.status(401).json({ error: '2FA setup required', setup2fa: true, setup2faInfo: { qrCodeUrl, secret: base32Secret } });
+          }
+
+          // Verify initial token for setup
+          const verified = speakeasy.totp.verify({
+            secret: base32Secret,
+            encoding: 'base32',
+            token: token
+          });
+
+          if (!verified) {
+            return res.status(401).json({ error: 'Invalid 2FA token' });
+          }
+          
+          // Enable 2FA now
+          await pool.query('UPDATE admins SET two_factor_enabled = TRUE WHERE username = ?', [username]);
         }
 
         res.cookie('admin_auth', 'true', { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
