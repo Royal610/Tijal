@@ -24,14 +24,11 @@ export default function Admin() {
     });
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, currentUrls: string, setter: (val: string) => void) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, setter: (val: string) => void) => {
     const files = e.target.files;
-    if (!files) return;
-    const base64s = currentUrls ? currentUrls.split(',').filter(Boolean) : [];
-    for (let i = 0; i < files.length; i++) {
-      base64s.push(await convertToBase64(files[i]));
-    }
-    setter(base64s.join(','));
+    if (!files || files.length === 0) return;
+    const base64 = await convertToBase64(files[0]);
+    setter(base64);
   };
 
   // Data states
@@ -517,7 +514,7 @@ export default function Admin() {
                     <input type="text" placeholder="Category" required className="border p-2 rounded" value={newService.category} onChange={e => setNewService({...newService, category: e.target.value})} />
                     <div className="border p-2 rounded flex items-center justify-between">
                       <span className="text-sm text-slate-500 mr-2">Product Image:</span>
-                      <input type="file" accept="image/*" required onChange={e => handleImageUpload(e, newService.image_url, val => setNewService({...newService, image_url: val}))} className="text-sm" />
+                      <input type="file" accept="image/*" required onChange={e => handleImageUpload(e, val => setNewService({...newService, image_url: val}))} className="text-sm" />
                     </div>
                     <input type="text" placeholder="Expected Number of Varieties (e.g., 5)" className="border p-2 rounded" />
                     <input type="text" placeholder="Base Price (e.g., ₹10 / unit)" className="border p-2 rounded" value={newService.price} onChange={e => setNewService({...newService, price: e.target.value})} />
@@ -577,8 +574,8 @@ export default function Admin() {
                     <input type="text" placeholder="Variant Title (e.g., Red, Large)" required className="border p-2 rounded" value={newVariant.title} onChange={e => setNewVariant({...newVariant, title: e.target.value})} />
                     <input type="text" placeholder="Price (e.g., ₹15)" className="border p-2 rounded" value={newVariant.price} onChange={e => setNewVariant({...newVariant, price: e.target.value})} />
                     <div className="border p-2 rounded md:col-span-2 flex items-center">
-                      <span className="text-sm text-slate-500 mr-2">Variant Images:</span>
-                      <input type="file" multiple accept="image/*" onChange={e => handleImageUpload(e, newVariant.image_url, val => setNewVariant({...newVariant, image_url: val}))} className="text-sm" />
+                      <span className="text-sm text-slate-500 mr-2">Variant Image:</span>
+                      <input type="file" accept="image/*" onChange={e => handleImageUpload(e, val => setNewVariant({...newVariant, image_url: val}))} className="text-sm" />
                     </div>
                     <button type="submit" className="bg-[#F27C21] text-white px-4 py-2 rounded md:col-span-2 flex items-center justify-center hover:bg-[#d66b1c]">
                       <Plus className="h-4 w-4 mr-2" /> Add Variant
@@ -604,8 +601,8 @@ export default function Admin() {
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <input type="text" className="border p-2 rounded w-full" value={editVariantForm.title} onChange={e => setEditVariantForm({ ...editVariantForm, title: e.target.value })} required placeholder="Variant Title" />
                                 <div className="border p-2 rounded w-full mt-2 flex items-center bg-white">
-                                  <span className="text-xs text-slate-500 mr-2">New Images:</span>
-                                  <input type="file" multiple accept="image/*" onChange={e => handleImageUpload(e, '', val => setEditVariantForm({...editVariantForm, image_url: val}))} className="text-xs w-full" />
+                                  <span className="text-xs text-slate-500 mr-2">New Image:</span>
+                                  <input type="file" accept="image/*" onChange={e => handleImageUpload(e, val => setEditVariantForm({...editVariantForm, image_url: val}))} className="text-xs w-full" />
                                 </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
@@ -625,15 +622,11 @@ export default function Admin() {
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center">
                                   {variant.image_url && variant.image_url.split(',').filter(Boolean).length > 0 ? (
-                                    <div className="flex -space-x-4 mr-4">
-                                      {variant.image_url.split(',').filter(Boolean).slice(0, 3).map((imgUrl: string, idx: number) => (
-                                        <img key={idx} className="h-10 w-10 rounded-md object-cover border-2 border-white relative z-10" src={imgUrl.trim() || undefined} alt="" referrerPolicy="no-referrer" />
-                                      ))}
-                                    </div>
+                                    <img className="h-10 w-10 rounded-md object-cover relative z-10" src={variant.image_url.split(',')[0].trim() || undefined} alt="" referrerPolicy="no-referrer" />
                                   ) : (
-                                    <div className="h-10 w-10 rounded-md bg-slate-200 mr-4 flex items-center justify-center text-slate-400">img</div>
+                                    <div className="h-10 w-10 rounded-md bg-slate-200 flex items-center justify-center text-slate-400">img</div>
                                   )}
-                                  <div className="text-sm font-medium text-slate-900 ml-2">{variant.title}</div>
+                                  <div className="text-sm font-medium text-slate-900 ml-4">{variant.title}</div>
                                 </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{variant.price || 'Same as product'}</td>
