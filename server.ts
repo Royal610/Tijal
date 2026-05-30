@@ -349,6 +349,29 @@ async function startServer() {
     res.json({ success: true });
   });
 
+  // Clients API
+  app.get('/api/clients', async (req, res) => {
+    const [clients] = await pool.query<any>('SELECT * FROM clients');
+    res.json(clients);
+  });
+
+  app.post('/api/clients', requireAdmin, async (req, res) => {
+    const { name, image_url, description, website } = req.body;
+    const [info] = await pool.query<any>('INSERT INTO clients (name, image_url, description, website) VALUES (?, ?, ?, ?)', [name, image_url, description, website]);
+    res.json({ id: info.insertId });
+  });
+
+  app.put('/api/clients/:id', requireAdmin, async (req, res) => {
+    const { name, image_url, description, website } = req.body;
+    await pool.query('UPDATE clients SET name = ?, image_url = ?, description = ?, website = ? WHERE id = ?', [name, image_url, description, website, req.params.id]);
+    res.json({ success: true });
+  });
+
+  app.delete('/api/clients/:id', requireAdmin, async (req, res) => {
+    await pool.query('DELETE FROM clients WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  });
+
   // Inquiries API
   app.get('/api/inquiries', requireAdmin, async (req, res) => {
     const [inquiries] = await pool.query<any>('SELECT * FROM inquiries ORDER BY created_at DESC');

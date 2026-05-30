@@ -230,6 +230,16 @@ export async function initializeDb() {
     )
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS clients (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(255),
+      image_url TEXT,
+      description TEXT,
+      website VARCHAR(255)
+    )
+  `);
+
   const [directorRows] = await pool.query<{count: number}[] & mysql.RowDataPacket[]>('SELECT COUNT(*) AS count FROM directors');
   if (directorRows[0].count === 0) {
     const initialDirectors = [
@@ -238,6 +248,17 @@ export async function initializeDb() {
     ];
     for (const d of initialDirectors) {
         await pool.query('INSERT INTO directors (name, role, image_url, bio) VALUES (?, ?, ?, ?)', d);
+    }
+  }
+
+  const [clientRows] = await pool.query<{count: number}[] & mysql.RowDataPacket[]>('SELECT COUNT(*) AS count FROM clients');
+  if (clientRows[0].count === 0) {
+    const initialClients = [
+        ['VAV Global', 'https://images.unsplash.com/photo-1599305445671-ac291c95aa9c?auto=format&fit=crop&q=80&w=200', 'Leading technology solutions provider.', 'https://example.com'],
+        ['Creative Arts', 'https://images.unsplash.com/photo-1549923155-4fd32626e2e2?auto=format&fit=crop&q=80&w=200', 'Boutique design and media agency.', 'https://example.com']
+    ];
+    for (const c of initialClients) {
+        await pool.query('INSERT INTO clients (name, image_url, description, website) VALUES (?, ?, ?, ?)', c);
     }
   }
 

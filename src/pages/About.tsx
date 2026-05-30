@@ -9,6 +9,7 @@ export default function About() {
     quality: { value: "100%", label: "Quality Guaranteed" }
   });
   const [directors, setDirectors] = useState<any[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
 
   useEffect(() => {
     fetch('/api/about-counters')
@@ -33,6 +34,13 @@ export default function About() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setDirectors(data);
+      })
+      .catch(console.error);
+
+    fetch('/api/clients')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setClients(data);
       })
       .catch(console.error);
   }, []);
@@ -163,7 +171,7 @@ export default function About() {
                   <div className="relative bg-white rounded-[2.5rem] overflow-hidden shadow-xl border border-slate-100 transition-transform duration-500 group-hover:-translate-y-2">
                     <div className="aspect-[4/5] overflow-hidden relative">
                       <img 
-                        src={director.image_url} 
+                        src={director.image_url || undefined} 
                         alt={director.name} 
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         referrerPolicy="no-referrer"
@@ -183,12 +191,13 @@ export default function About() {
         </section>
       )}
 
-      {/* Stats/Values */}
+      {/* Stats/Values (About Counters) */}
       <div className="bg-white py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Numbers that speak.</h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">A testament to our dedication, precision, and the trust our clients place in us.</p>
+            <h2 className="text-sm font-bold tracking-widest text-[#F27C21] uppercase mb-3">Our Impact</h2>
+            <h3 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">The <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800">Numbers</span> of Trust</h3>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto mt-4 font-sans leading-relaxed">A testament to our dedication, precision, and the trust our clients place in us daily.</p>
           </div>
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
@@ -202,13 +211,63 @@ export default function About() {
                 <div className={`mx-auto h-20 w-20 ${item.bg} ${item.color} rounded-2xl flex items-center justify-center mb-6 transform group-hover:-translate-y-2 transition-all duration-300 shadow-sm`}>
                   {item.icon}
                 </div>
-                <h3 className="text-4xl font-black text-slate-900 tracking-tight mb-2">{item.stat}</h3>
-                <p className="text-sm text-slate-500 font-bold uppercase tracking-wider">{item.label}</p>
+                <div className="text-4xl font-black text-slate-900 tracking-tight mb-2 font-sans">{item.stat}</div>
+                <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">{item.label}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {/* Our Clients Section */}
+      {clients.length > 0 && (
+        <section className="py-24 bg-slate-50 border-y border-slate-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-sm font-bold tracking-widest text-[#F27C21] uppercase mb-3">Our Valued Clients</h2>
+              <h3 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">Trusted by Industry <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800">Leaders</span></h3>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto mt-4 font-sans leading-relaxed">We are honored to partner with organizations that prioritize excellence and high-impact visual representation.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {clients.map((client) => (
+                <div key={client.id} className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
+                  <div className="flex items-center space-x-6 mb-8">
+                    <div className="w-24 h-24 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden p-3 group-hover:bg-white transition-colors flex-shrink-0">
+                      <img 
+                        src={client.image_url || undefined} 
+                        alt={client.name} 
+                        className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-2xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors tracking-tight">{client.name}</h4>
+                      {client.website && (
+                        <a 
+                          href={client.website} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-sm text-blue-500 font-bold hover:underline flex items-center mt-2 group/link"
+                        >
+                          Visit Platform
+                          <ArrowRight className="ml-1 h-3.5 w-3.5 group-hover/link:translate-x-1 transition-transform" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mt-auto relative">
+                    <div className="absolute -left-4 top-0 h-full w-1 bg-[#F27C21]/20 rounded-full"></div>
+                    <p className="text-slate-600 font-sans leading-relaxed pl-2 italic">
+                      "{client.description}"
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
       
     </div>
   );

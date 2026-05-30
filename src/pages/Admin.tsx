@@ -37,11 +37,13 @@ export default function Admin() {
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [aboutCounters, setAboutCounters] = useState<any[]>([]);
   const [directors, setDirectors] = useState<any[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
   const [saveStatus, setSaveStatus] = useState<string>('');
 
   // Form states
   const [newService, setNewService] = useState({ title: '', description: '', image_url: '', category: '', price: '' });
   const [newTestimonial, setNewTestimonial] = useState({ client_name: '', content: '', rating: 5 });
+  const [newClient, setNewClient] = useState({ name: '', image_url: '', description: '', website: '' });
 
   // Variants state
   const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
@@ -157,6 +159,10 @@ export default function Admin() {
         const res = await fetch('/api/directors');
         const data = await res.json();
         if (Array.isArray(data)) setDirectors(data);
+      } else if (activeTab === 'clients') {
+        const res = await fetch('/api/clients');
+        const data = await res.json();
+        if (Array.isArray(data)) setClients(data);
       }
     } catch (err) {
       console.error(err);
@@ -210,6 +216,31 @@ export default function Admin() {
       }
     } catch (err) {
       setSaveStatus('Error saving directors');
+    }
+  };
+
+  const addClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await fetch('/api/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newClient)
+      });
+      setNewClient({ name: '', image_url: '', description: '', website: '' });
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const deleteClient = async (id: number) => {
+    if (!confirm('Are you sure?')) return;
+    try {
+      await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+      fetchData();
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -390,7 +421,7 @@ export default function Admin() {
                   {setup2faInfo && (
                     <div className="mb-4 flex flex-col items-center">
                       <p className="text-sm text-slate-800 font-bold mb-2">Setup Google Authenticator</p>
-                      <img src={setup2faInfo.qrCodeUrl} alt="2FA QR Code" className="w-40 h-40 border rounded-lg shadow-sm mb-2" />
+                      <img src={setup2faInfo.qrCodeUrl || undefined} alt="2FA QR Code" className="w-40 h-40 border rounded-lg shadow-sm mb-2" />
                       <p className="text-xs text-slate-500 text-center px-4">
                         Scan the QR code with Google Authenticator, then enter the 6-digit code below to login.
                       </p>
@@ -465,6 +496,12 @@ export default function Admin() {
             className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'directors' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
           >
             <Users className="mr-3 h-5 w-5" /> Manage Directors
+          </button>
+          <button
+            onClick={() => setActiveTab('clients')}
+            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'clients' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
+          >
+            <Users className="mr-3 h-5 w-5" /> Manage Clients
           </button>
           <button
             onClick={() => { setActiveTab('settings'); setup2fa(); }}
@@ -630,7 +667,7 @@ export default function Admin() {
                       />
                       {director.image_url && (
                         <div className="mt-2 w-20 h-20 rounded-lg overflow-hidden border">
-                          <img src={director.image_url} alt="Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          <img src={director.image_url || undefined} alt="Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         </div>
                       )}
                     </div>
@@ -653,6 +690,82 @@ export default function Admin() {
               >
                 Save All Director Changes
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Clients Management Tab */}
+        {activeTab === 'clients' && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-slate-900">Our Clients</h2>
+            </div>
+            
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8">
+              <h3 className="text-lg font-semibold mb-4 text-[#F27C21]">Add New Client</h3>
+              <form onSubmit={addClient} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input 
+                  type="text" 
+                  placeholder="Client Name" 
+                  className="px-4 py-2 border rounded-lg" 
+                  required
+                  value={newClient.name}
+                  onChange={(e) => setNewClient({...newClient, name: e.target.value})}
+                />
+                <input 
+                  type="text" 
+                  placeholder="Website URL" 
+                  className="px-4 py-2 border rounded-lg" 
+                  value={newClient.website}
+                  onChange={(e) => setNewClient({...newClient, website: e.target.value})}
+                />
+                <input 
+                  type="text" 
+                  placeholder="Logo URL" 
+                  className="px-4 py-2 border rounded-lg" 
+                  value={newClient.image_url}
+                  onChange={(e) => setNewClient({...newClient, image_url: e.target.value})}
+                />
+                <textarea 
+                  placeholder="Short Description" 
+                  className="px-4 py-2 border rounded-lg md:col-span-2" 
+                  value={newClient.description}
+                  onChange={(e) => setNewClient({...newClient, description: e.target.value})}
+                />
+                <button 
+                  type="submit" 
+                  className="bg-[#F27C21] text-white px-6 py-2 rounded-lg font-medium hover:bg-[#d66b1c] transition-colors md:w-fit"
+                >
+                  Add Client
+                </button>
+              </form>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {clients.map((client) => (
+                <div key={client.id} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border bg-slate-50 flex items-center justify-center">
+                      {client.image_url ? (
+                        <img src={client.image_url} alt={client.name} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                      ) : (
+                        <div className="text-slate-300 font-bold">Logo</div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-slate-800">{client.name}</h4>
+                      {client.website && <a href={client.website} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">{client.website}</a>}
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-600 mb-4 flex-grow">{client.description}</p>
+                  <button 
+                    onClick={() => deleteClient(client.id)}
+                    className="text-red-500 text-sm font-medium hover:text-red-700 flex items-center"
+                  >
+                    Remove Client
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         )}
