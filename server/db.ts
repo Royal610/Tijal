@@ -225,20 +225,28 @@ export async function initializeDb() {
       id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(255),
       role VARCHAR(255),
-      image_url TEXT,
+      image_url LONGTEXT,
       bio TEXT
     )
   `);
+
+  try {
+    await pool.query('ALTER TABLE directors MODIFY COLUMN image_url LONGTEXT');
+  } catch(e) {}
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS clients (
       id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(255),
-      image_url TEXT,
+      image_url LONGTEXT,
       description TEXT,
       website VARCHAR(255)
     )
   `);
+
+  try {
+    await pool.query('ALTER TABLE clients MODIFY COLUMN image_url LONGTEXT');
+  } catch(e) {}
 
   const [directorRows] = await pool.query<{count: number}[] & mysql.RowDataPacket[]>('SELECT COUNT(*) AS count FROM directors');
   if (directorRows[0].count === 0) {

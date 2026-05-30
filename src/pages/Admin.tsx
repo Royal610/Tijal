@@ -722,7 +722,7 @@ export default function Admin() {
                           <input 
                             type="file"
                             accept="image/*"
-                            onChange={(e) => handleFileServerUpload(e, 'director', (url) => handleDirectorChange(index, 'image_url', url))}
+                            onChange={(e) => handleImageUpload(e, (url) => handleDirectorChange(index, 'image_url', url))}
                             className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#F27C21]/10 file:text-[#F27C21] hover:file:bg-[#F27C21]/20"
                           />
                         </div>
@@ -786,7 +786,7 @@ export default function Admin() {
                   <input 
                     type="file" 
                     accept="image/*" 
-                    onChange={(e) => handleFileServerUpload(e, 'client', (url) => setNewClient({...newClient, image_url: url}))} 
+                    onChange={(e) => handleImageUpload(e, (url) => setNewClient({...newClient, image_url: url}))} 
                     className="text-sm" 
                   />
                 </div>
@@ -836,7 +836,7 @@ export default function Admin() {
                         <input 
                           type="file" 
                           accept="image/*" 
-                          onChange={(e) => handleFileServerUpload(e, 'client', (url) => setEditClientForm({...editClientForm, image_url: url}))}
+                          onChange={(e) => handleImageUpload(e, (url) => setEditClientForm({...editClientForm, image_url: url}))}
                           className="text-xs flex-1"
                         />
                         {editClientForm.image_url && (

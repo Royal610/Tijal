@@ -373,14 +373,23 @@ async function startServer() {
 
   app.put('/api/directors', requireAdmin, async (req, res) => {
     const directors = req.body;
+    console.log('UPDATING DIRECTORS:', Array.isArray(directors) ? directors.length : 'NOT AN ARRAY');
     if (Array.isArray(directors)) {
-      for (const d of directors) {
-        if (d.id) {
-          await pool.query('UPDATE directors SET name = ?, role = ?, image_url = ?, bio = ? WHERE id = ?', [d.name, d.role, d.image_url, d.bio, d.id]);
+      try {
+        for (const d of directors) {
+          if (d.id) {
+            console.log(`Updating director ${d.id}: ${d.name}`);
+            await pool.query('UPDATE directors SET name = ?, role = ?, image_url = ?, bio = ? WHERE id = ?', [d.name, d.role, d.image_url, d.bio, d.id]);
+          }
         }
+        res.json({ success: true });
+      } catch (error: any) {
+        console.error('Error updating directors:', error);
+        res.status(500).json({ error: 'Failed to update directors: ' + error.message });
       }
+    } else {
+      res.status(400).json({ error: 'Invalid data format' });
     }
-    res.json({ success: true });
   });
 
   // Clients API
@@ -391,14 +400,26 @@ async function startServer() {
 
   app.post('/api/clients', requireAdmin, async (req, res) => {
     const { name, image_url, description, website } = req.body;
-    const [info] = await pool.query<any>('INSERT INTO clients (name, image_url, description, website) VALUES (?, ?, ?, ?)', [name, image_url, description, website]);
-    res.json({ id: info.insertId });
+    console.log('ADDING CLIENT:', name);
+    try {
+      const [info] = await pool.query<any>('INSERT INTO clients (name, image_url, description, website) VALUES (?, ?, ?, ?)', [name, image_url, description, website]);
+      res.json({ id: info.insertId });
+    } catch (error: any) {
+      console.error('Error adding client:', error);
+      res.status(500).json({ error: 'Failed to add client: ' + error.message });
+    }
   });
 
   app.put('/api/clients/:id', requireAdmin, async (req, res) => {
     const { name, image_url, description, website } = req.body;
-    await pool.query('UPDATE clients SET name = ?, image_url = ?, description = ?, website = ? WHERE id = ?', [name, image_url, description, website, req.params.id]);
-    res.json({ success: true });
+    console.log('UPDATING CLIENT:', req.params.id, name);
+    try {
+      await pool.query('UPDATE clients SET name = ?, image_url = ?, description = ?, website = ? WHERE id = ?', [name, image_url, description, website, req.params.id]);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error updating client:', error);
+      res.status(500).json({ error: 'Failed to update client: ' + error.message });
+    }
   });
 
   app.delete('/api/clients/:id', requireAdmin, async (req, res) => {
