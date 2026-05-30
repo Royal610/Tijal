@@ -36,20 +36,9 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [quantity, setQuantity] = useState(10);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
-  const allImages = Array.from(new Set([
-    product?.image_url,
-    ...variants.flatMap(v => (v.image_url || '').split(',').map(u => u.trim()).filter(Boolean))
-  ].filter(Boolean) as string[]));
-
-  useEffect(() => {
-    if (allImages.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrentImageIndex(prev => (prev + 1) % allImages.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [allImages.length]);
+  const displayImage = selectedVariant?.image_url && selectedVariant.image_url.trim() !== '' 
+    ? selectedVariant.image_url 
+    : product?.image_url;
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -202,74 +191,17 @@ export default function ProductDetails() {
             
             {/* Left Column: Image Carousel & Variants */}
             <div className="flex flex-col gap-8">
-              {/* Image Carousel */}
-              <div className="w-full relative h-[300px] sm:h-[400px] lg:h-[500px] rounded-xl overflow-hidden bg-slate-100 group shadow-inner border border-slate-200">
-                {allImages.length > 0 ? allImages.map((img, idx) => (
+              {/* Product Image */}
+              <div className="w-full relative h-[300px] sm:h-[400px] lg:h-[500px] rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                {displayImage && (
                   <img
-                    key={idx}
-                    src={img || undefined}
-                    alt={`Slide ${idx}`}
-                    className={`absolute inset-0 w-full h-full object-contain bg-white transition-opacity duration-700 ${
-                      idx === currentImageIndex ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    referrerPolicy="no-referrer"
-                  />
-                )) : product?.image_url && (
-                  <img 
-                    src={product.image_url || undefined} 
-                    alt={product.title} 
+                    src={displayImage || undefined}
+                    alt={product.title}
                     className="absolute inset-0 w-full h-full object-contain bg-white"
                     referrerPolicy="no-referrer"
                   />
                 )}
-                {/* Carousel controls */}
-                {allImages.length > 1 && (
-                  <>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentImageIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
-                      }}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-slate-800 p-2 sm:p-3 rounded-full shadow-md transition-all z-10 opacity-0 group-hover:opacity-100 focus:opacity-100"
-                      aria-label="Previous image"
-                    >
-                      <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentImageIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
-                      }}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-slate-800 p-2 sm:p-3 rounded-full shadow-md transition-all z-10 opacity-0 group-hover:opacity-100 focus:opacity-100"
-                      aria-label="Next image"
-                    >
-                      <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-                    </button>
-                  </>
-                )}
               </div>
-
-              {/* Thumbnails */}
-              {allImages.length > 1 && (
-                <div className="flex flex-wrap gap-3">
-                  {allImages.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCurrentImageIndex(idx)}
-                      className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden border-2 transition-all ${
-                        idx === currentImageIndex ? 'border-blue-600 shadow-md ring-2 ring-blue-600 ring-opacity-20' : 'border-slate-200 hover:border-blue-400 opacity-70 hover:opacity-100'
-                      }`}
-                    >
-                      <img 
-                        src={img || undefined} 
-                        alt={`Thumbnail ${idx + 1}`} 
-                        className="w-full h-full object-cover bg-white" 
-                        referrerPolicy="no-referrer" 
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
 
               {/* Variants underneath image */}
               {variants.length > 0 && (
@@ -277,15 +209,12 @@ export default function ProductDetails() {
                   <label className="font-bold text-slate-900 mb-4 block text-lg">Select Option / Category:</label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {variants.map((variant) => {
-                      const variantImages = (variant.image_url || '').split(',').map(u => u.trim()).filter(Boolean);
-                      const displayImg = variantImages[0] || product?.image_url;
-                      const imgIndex = allImages.indexOf(displayImg || '');
+                      const displayImg = (variant.image_url && variant.image_url.trim() !== '') ? variant.image_url : product?.image_url;
                       return (
                         <div 
                           key={variant.id} 
                           onClick={() => {
                             setSelectedVariant(variant);
-                            if (imgIndex !== -1) setCurrentImageIndex(imgIndex);
                           }}
                           className={`cursor-pointer rounded-xl overflow-hidden border-2 transition-all ${selectedVariant?.id === variant.id ? 'border-blue-600 shadow-md ring-2 ring-blue-600 ring-opacity-20 bg-blue-50' : 'border-slate-200 hover:border-blue-400 bg-white'}`}
                         >
