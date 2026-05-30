@@ -71,6 +71,8 @@ export default function Admin() {
   const [newService, setNewService] = useState({ title: '', description: '', image_url: '', category: '', price: '' });
   const [newTestimonial, setNewTestimonial] = useState({ client_name: '', content: '', rating: 5 });
   const [newClient, setNewClient] = useState({ name: '', image_url: '', description: '', website: '' });
+  const [editingClientId, setEditingClientId] = useState<number | null>(null);
+  const [editClientForm, setEditClientForm] = useState({ name: '', image_url: '', description: '', website: '' });
 
   // Variants state
   const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
@@ -268,6 +270,36 @@ export default function Admin() {
       fetchData();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const startEditClient = (client: any) => {
+    setEditingClientId(client.id);
+    setEditClientForm({
+      name: client.name || '',
+      image_url: client.image_url || '',
+      description: client.description || '',
+      website: client.website || ''
+    });
+  };
+
+  const saveEditClient = async (id: number) => {
+    try {
+      setSaveStatus('Updating client...');
+      const res = await fetch(`/api/clients/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editClientForm)
+      });
+      if (res.ok) {
+        setEditingClientId(null);
+        setSaveStatus('Client updated successfully!');
+        setTimeout(() => setSaveStatus(''), 3000);
+        fetchData();
+      }
+    } catch (err) {
+      console.error(err);
+      setSaveStatus('Error updating client');
     }
   };
 
@@ -784,26 +816,76 @@ export default function Admin() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {clients.map((client) => (
                 <div key={client.id} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-16 h-16 rounded-lg overflow-hidden border bg-slate-50 flex items-center justify-center">
-                      {client.image_url ? (
-                        <img src={client.image_url} alt={client.name} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
-                      ) : (
-                        <div className="text-slate-300 font-bold">Logo</div>
-                      )}
+                  {editingClientId === client.id ? (
+                    <div className="space-y-4">
+                      <input 
+                        type="text" 
+                        value={editClientForm.name} 
+                        onChange={e => setEditClientForm({...editClientForm, name: e.target.value})}
+                        className="w-full px-3 py-1 border rounded text-sm"
+                        placeholder="Name"
+                      />
+                      <input 
+                        type="text" 
+                        value={editClientForm.website} 
+                        onChange={e => setEditClientForm({...editClientForm, website: e.target.value})}
+                        className="w-full px-3 py-1 border rounded text-sm"
+                        placeholder="Website"
+                      />
+                      <div className="flex items-center space-x-2">
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={(e) => handleFileServerUpload(e, 'client', (url) => setEditClientForm({...editClientForm, image_url: url}))}
+                          className="text-xs flex-1"
+                        />
+                        {editClientForm.image_url && (
+                          <img src={editClientForm.image_url} alt="Preview" className="w-8 h-8 object-contain border" />
+                        )}
+                      </div>
+                      <textarea 
+                        value={editClientForm.description} 
+                        onChange={e => setEditClientForm({...editClientForm, description: e.target.value})}
+                        className="w-full px-3 py-1 border rounded text-sm h-20"
+                        placeholder="Description"
+                      />
+                      <div className="flex space-x-2">
+                        <button onClick={() => saveEditClient(client.id)} className="bg-green-600 text-white px-3 py-1 rounded text-xs">Save</button>
+                        <button onClick={() => setEditingClientId(null)} className="bg-slate-500 text-white px-3 py-1 rounded text-xs">Cancel</button>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-bold text-slate-800">{client.name}</h4>
-                      {client.website && <a href={client.website} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">{client.website}</a>}
-                    </div>
-                  </div>
-                  <p className="text-sm text-slate-600 mb-4 flex-grow">{client.description}</p>
-                  <button 
-                    onClick={() => deleteClient(client.id)}
-                    className="text-red-500 text-sm font-medium hover:text-red-700 flex items-center"
-                  >
-                    Remove Client
-                  </button>
+                  ) : (
+                    <>
+                      <div className="flex items-center space-x-4 mb-4">
+                        <div className="w-16 h-16 rounded-lg overflow-hidden border bg-slate-50 flex items-center justify-center">
+                          {client.image_url ? (
+                            <img src={client.image_url || undefined} alt={client.name} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                          ) : (
+                            <div className="text-slate-300 font-bold">Logo</div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-bold text-slate-800">{client.name}</h4>
+                          {client.website && <a href={client.website} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">{client.website}</a>}
+                        </div>
+                      </div>
+                      <p className="text-sm text-slate-600 mb-4 flex-grow line-clamp-3">{client.description}</p>
+                      <div className="flex justify-between items-center mt-auto pt-4 border-t">
+                        <button 
+                          onClick={() => startEditClient(client)}
+                          className="text-blue-500 text-sm font-medium hover:text-blue-700"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => deleteClient(client.id)}
+                          className="text-red-500 text-sm font-medium hover:text-red-700 flex items-center"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>

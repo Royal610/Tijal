@@ -50,6 +50,9 @@ async function startServer() {
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
   app.use(cookieParser());
 
+  // Serve static uploads
+  app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')));
+
   // --- API Routes ---
   
   app.get('/api/setup-db', async (req, res) => {

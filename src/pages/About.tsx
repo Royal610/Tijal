@@ -169,19 +169,22 @@ export default function About() {
                 <div key={director.id} className="group relative">
                   <div className="absolute inset-0 bg-gradient-to-tr from-[#F27C21] to-[#d5a46d] rounded-[2.5rem] transform rotate-2 opacity-10 group-hover:rotate-4 transition-transform duration-500"></div>
                   <div className="relative bg-white rounded-[2.5rem] overflow-hidden shadow-xl border border-slate-100 transition-transform duration-500 group-hover:-translate-y-2">
-                    <div className="aspect-[4/5] overflow-hidden relative">
+                    <div className="aspect-[4/5] overflow-hidden relative bg-slate-100">
                       <img 
                         src={director.image_url || undefined} 
                         alt={director.name} 
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400';
+                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
                     </div>
-                    <div className="p-10 text-center">
+                    <div className="p-10 text-center flex-grow flex flex-col">
                       <h3 className="text-2xl font-bold text-slate-900 mb-2">{director.name}</h3>
                       <p className="text-[#F27C21] font-bold uppercase tracking-[0.2em] text-xs mb-4">{director.role}</p>
-                      <p className="text-slate-600 font-sans leading-relaxed italic">"{director.bio}"</p>
+                      <p className="text-slate-600 font-sans leading-relaxed italic line-clamp-4">"{director.bio}"</p>
                     </div>
                   </div>
                 </div>
@@ -233,12 +236,15 @@ export default function About() {
               {clients.map((client) => (
                 <div key={client.id} className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
                   <div className="flex items-center space-x-6 mb-8">
-                    <div className="w-24 h-24 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden p-3 group-hover:bg-white transition-colors flex-shrink-0">
+                    <div className="w-24 h-24 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden p-2 group-hover:bg-white transition-colors flex-shrink-0">
                       <img 
                         src={client.image_url || undefined} 
                         alt={client.name} 
                         className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500"
                         referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1599305445671-ac291c95aa9c?auto=format&fit=crop&q=80&w=200';
+                        }}
                       />
                     </div>
                     <div className="flex-1">
@@ -256,9 +262,9 @@ export default function About() {
                       )}
                     </div>
                   </div>
-                  <div className="mt-auto relative">
+                  <div className="mt-8 relative">
                     <div className="absolute -left-4 top-0 h-full w-1 bg-[#F27C21]/20 rounded-full"></div>
-                    <p className="text-slate-600 font-sans leading-relaxed pl-2 italic">
+                    <p className="text-slate-600 font-sans leading-relaxed pl-2 italic line-clamp-3">
                       "{client.description}"
                     </p>
                   </div>
