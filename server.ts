@@ -6,8 +6,26 @@ import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
 import path from 'path';
 import pool, { initializeDb } from './server/db.js';
+import multer from 'multer';
 
 const ADMIN_PASSWORD = 'admin'; // Hardcoded for demo purposes
+
+// Configure storage for multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const type = req.query.type as string;
+    let dest = 'public/uploads/';
+    if (type === 'director') dest += 'directors/';
+    else if (type === 'client') dest += 'clients/';
+    cb(null, dest);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage });
 
 async function startServer() {
   const app = express();
@@ -164,6 +182,19 @@ async function startServer() {
       res.status(401).json({ error: 'Unauthorized' });
     }
   };
+  
+  app.post('/api/upload', requireAdmin, upload.single('image'), (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    const type = req.query.type as string;
+    let url = `/uploads/`;
+    if (type === 'director') url += `directors/${req.file.filename}`;
+    else if (type === 'client') url += `clients/${req.file.filename}`;
+    else url += `${req.file.filename}`;
+    
+    res.json({ url });
+  });
 
   app.get('/api/admin/2fa/setup', requireAdmin, async (req, res) => {
     const username = 'admin';
