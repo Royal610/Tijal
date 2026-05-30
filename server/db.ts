@@ -20,9 +20,11 @@ const pool = mysql.createPool({
 });
 
 // A wrapper to avoid crashing the whole API in the AI Studio preview
+let mockAdminStore: any = null;
+
 const originalQuery = pool.query.bind(pool);
 (pool as any).query = async function(...args: any[]) {
-  try {
+      try {
     return await originalQuery(...args);
   } catch (error: any) {
     if (process.env.NODE_ENV !== 'production' && (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'EAI_AGAIN' || error.code === 'ER_ACCESS_DENIED_ERROR' || error.code === 'ER_BAD_DB_ERROR')) {
@@ -30,9 +32,21 @@ const originalQuery = pool.query.bind(pool);
       const sql = args[0] as string;
       if (typeof sql === 'string') {
         if (sql.includes('FROM admins WHERE username')) {
-          const bcrypt = await import('bcryptjs');
-          const hash = await bcrypt.default.hash('admin', 10);
-          return [[{ username: 'admin', password_hash: hash, two_factor_enabled: 0 }], []] as any;
+          if (!mockAdminStore) {
+            const bcrypt = await import('bcryptjs');
+            const hash = await bcrypt.default.hash('admin', 10);
+            mockAdminStore = { username: 'admin', password_hash: hash, two_factor_enabled: 0, two_factor_secret: null };
+          }
+          return [[mockAdminStore], []] as any;
+        } else if (sql.includes('UPDATE admins SET two_factor_secret')) {
+          if (mockAdminStore) mockAdminStore.two_factor_secret = args[1][0];
+          return [[], []] as any;
+        } else if (sql.includes('UPDATE admins SET two_factor_enabled')) {
+          if (mockAdminStore) mockAdminStore.two_factor_enabled = 1;
+          return [[], []] as any;
+        } else if (sql.includes('UPDATE admins SET password_hash')) {
+          if (mockAdminStore) mockAdminStore.password_hash = args[1][0];
+          return [[], []] as any;
         }
       }
 

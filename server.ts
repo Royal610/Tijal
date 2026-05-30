@@ -103,7 +103,7 @@ async function startServer() {
           }
         }
 
-        res.cookie('admin_auth', 'true', { httpOnly: true, maxAge: 24 * 60 * 60 * 1000, sameSite: 'none', secure: true });
+        res.cookie('admin_auth', 'true', { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
         res.json({ success: true });
       } else {
         res.status(401).json({ error: 'Invalid credentials' });
@@ -115,7 +115,7 @@ async function startServer() {
   });
 
   app.post('/api/admin/logout', (req, res) => {
-    res.clearCookie('admin_auth', { httpOnly: true, sameSite: 'none', secure: true });
+    res.clearCookie('admin_auth', { httpOnly: true });
     res.json({ success: true });
   });
 
