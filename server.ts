@@ -183,7 +183,7 @@ async function startServer() {
     }
   };
   
-  app.post('/api/upload', requireAdmin, upload.single('image'), (req, res) => {
+  app.post('/api/upload', requireAdmin, upload.single('image'), (req: any, res: any) => {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }

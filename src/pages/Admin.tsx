@@ -24,6 +24,33 @@ export default function Admin() {
     });
   };
 
+  const handleFileServerUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'director' | 'client', setter: (val: string) => void) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    const formData = new FormData();
+    formData.append('image', files[0]);
+    
+    try {
+      setSaveStatus('Uploading image...');
+      const res = await fetch(`/api/upload?type=${type}`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.url) {
+        setter(data.url);
+        setSaveStatus('Image uploaded!');
+        setTimeout(() => setSaveStatus(''), 2000);
+      } else {
+        setSaveStatus('Upload failed');
+      }
+    } catch (err) {
+      console.error(err);
+      setSaveStatus('Error uploading');
+    }
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, setter: (val: string) => void) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -657,19 +684,22 @@ export default function Admin() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Image URL</label>
-                      <input 
-                        type="text" 
-                        value={director.image_url || ''} 
-                        onChange={(e) => handleDirectorChange(index, 'image_url', e.target.value)}
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-1 focus:ring-[#F27C21]"
-                        placeholder="Paste image link here"
-                      />
-                      {director.image_url && (
-                        <div className="mt-2 w-20 h-20 rounded-lg overflow-hidden border">
-                          <img src={director.image_url || undefined} alt="Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Director Image</label>
+                      <div className="flex items-center space-x-4">
+                        <div className="flex-1">
+                          <input 
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleFileServerUpload(e, 'director', (url) => handleDirectorChange(index, 'image_url', url))}
+                            className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#F27C21]/10 file:text-[#F27C21] hover:file:bg-[#F27C21]/20"
+                          />
                         </div>
-                      )}
+                        {director.image_url && (
+                          <div className="w-16 h-16 rounded-lg overflow-hidden border">
+                            <img src={director.image_url || undefined} alt="Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1">Brief Bio</label>
@@ -719,13 +749,23 @@ export default function Admin() {
                   value={newClient.website}
                   onChange={(e) => setNewClient({...newClient, website: e.target.value})}
                 />
-                <input 
-                  type="text" 
-                  placeholder="Logo URL" 
-                  className="px-4 py-2 border rounded-lg" 
-                  value={newClient.image_url}
-                  onChange={(e) => setNewClient({...newClient, image_url: e.target.value})}
-                />
+                <div className="border p-2 rounded flex items-center justify-between">
+                  <span className="text-sm text-slate-500 mr-2">Client Logo:</span>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={(e) => handleFileServerUpload(e, 'client', (url) => setNewClient({...newClient, image_url: url}))} 
+                    className="text-sm" 
+                  />
+                </div>
+                {newClient.image_url && (
+                  <div className="md:col-span-2 flex items-center space-x-2">
+                    <span className="text-xs text-green-600 font-medium">Image attached:</span>
+                    <div className="w-10 h-10 border rounded overflow-hidden">
+                      <img src={newClient.image_url || undefined} alt="Attached" className="w-full h-full object-contain" />
+                    </div>
+                  </div>
+                )}
                 <textarea 
                   placeholder="Short Description" 
                   className="px-4 py-2 border rounded-lg md:col-span-2" 
