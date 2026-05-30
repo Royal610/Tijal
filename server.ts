@@ -11,7 +11,7 @@ const ADMIN_PASSWORD = 'admin'; // Hardcoded for demo purposes
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT || 3000;
+  const PORT = 3000;
 
   // Try to initialize DB, but don't crash if it fails
   initializeDb().then(() => {
@@ -63,23 +63,10 @@ async function startServer() {
       }
       
       const adminUser = adminRows[0];
-      const bcrypt = await import('bcryptjs');
-      let validPassword = false;
       
-      // If the stored hash looks like a bcrypt hash
-      if (adminUser.password_hash.startsWith('$2a$') || adminUser.password_hash.startsWith('$2b$')) {
-        validPassword = await bcrypt.default.compare(password, adminUser.password_hash);
-      } else {
-        // Fallback: Check if it's plain text (user manually updated DB)
-        validPassword = (password === adminUser.password_hash);
-        
-        // Auto-upgrade to bcrypt hash if valid
-        if (validPassword) {
-          const newHash = await bcrypt.default.hash(password, 10);
-          await pool.query('UPDATE admins SET password_hash = ? WHERE username = ?', [newHash, username]);
-          console.log('Upgraded plain-text password to bcrypt hash');
-        }
-      }
+      // To support tables that haven't been altered yet, fall back to password_hash if password column doesn't exist
+      const storedPassword = adminUser.password || adminUser.password_hash;
+      const validPassword = (password === storedPassword);
       
       console.log('Password valid:', validPassword);
       
@@ -192,47 +179,6 @@ async function startServer() {
       bulkInquiries: inquiriesRows[0].count,
       totalInquiries: allInquiriesRows[0].count
     });
-  });
-
-  app.get('/api/settings/counters', async (req, res) => {
-    const [clients] = await pool.query<any>('SELECT setting_value FROM admin_settings WHERE setting_key = "counter_clients"');
-    const [prints] = await pool.query<any>('SELECT setting_value FROM admin_settings WHERE setting_key = "counter_prints"');
-    const [experience] = await pool.query<any>('SELECT setting_value FROM admin_settings WHERE setting_key = "counter_experience"');
-    const [quality] = await pool.query<any>('SELECT setting_value FROM admin_settings WHERE setting_key = "counter_quality"');
-
-    res.json({
-      clients: clients.length > 0 ? clients[0].setting_value : '5,000+',
-      prints: prints.length > 0 ? prints[0].setting_value : '1M+',
-      experience: experience.length > 0 ? experience[0].setting_value : '15+',
-      quality: quality.length > 0 ? quality[0].setting_value : '100%',
-    });
-  });
-
-  app.post('/api/admin/settings/counters', requireAdmin, async (req, res) => {
-    const { clients, prints, experience, quality } = req.body;
-    
-    if (clients !== undefined) await pool.query('INSERT INTO admin_settings (setting_key, setting_value) VALUES ("counter_clients", ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)', [String(clients)]);
-    if (prints !== undefined) await pool.query('INSERT INTO admin_settings (setting_key, setting_value) VALUES ("counter_prints", ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)', [String(prints)]);
-    if (experience !== undefined) await pool.query('INSERT INTO admin_settings (setting_key, setting_value) VALUES ("counter_experience", ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)', [String(experience)]);
-    if (quality !== undefined) await pool.query('INSERT INTO admin_settings (setting_key, setting_value) VALUES ("counter_quality", ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)', [String(quality)]);
-    
-    res.json({ success: true });
-  });
-
-  app.get('/api/settings/contact', async (req, res) => {
-    const [whatsapp] = await pool.query<any>('SELECT setting_value FROM admin_settings WHERE setting_key = "contact_whatsapp"');
-    
-    res.json({
-      whatsapp: whatsapp.length > 0 ? whatsapp[0].setting_value : '919203700114',
-    });
-  });
-
-  app.post('/api/admin/settings/contact', requireAdmin, async (req, res) => {
-    const { whatsapp } = req.body;
-    
-    if (whatsapp !== undefined) await pool.query('INSERT INTO admin_settings (setting_key, setting_value) VALUES ("contact_whatsapp", ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)', [String(whatsapp)]);
-    
-    res.json({ success: true });
   });
 
   app.get('/api/services/:id/variants', async (req, res) => {

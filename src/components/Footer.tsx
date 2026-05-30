@@ -5,15 +5,6 @@ import { useState, useEffect } from 'react';
 export default function Footer() {
   const [phoneNumber, setPhoneNumber] = useState("919203700114");
 
-  useEffect(() => {
-    fetch('/api/settings/contact')
-      .then(res => res.json())
-      .then(data => {
-        if (data.whatsapp) setPhoneNumber(data.whatsapp);
-      })
-      .catch(console.error);
-  }, []);
-
   const formatDisplayPhone = (num: string) => {
     if (num.startsWith('91') && num.length === 12) {
       return `+91 ${num.substring(2, 7)} ${num.substring(7)}`;

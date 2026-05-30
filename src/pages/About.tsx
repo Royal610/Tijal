@@ -9,20 +9,6 @@ export default function About() {
     quality: "100%"
   });
 
-  useEffect(() => {
-    fetch('/api/settings/counters')
-      .then(res => res.json())
-      .then(data => {
-        setCounters({
-          clients: data.clients || "5,000+",
-          prints: data.prints || "1M+",
-          experience: data.experience || "15+",
-          quality: data.quality || "100%"
-        });
-      })
-      .catch(console.error);
-  }, []);
-
   return (
     <div className="bg-white scroll-smooth">
       {/* Header / Hero Section */}

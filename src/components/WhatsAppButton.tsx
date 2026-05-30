@@ -3,15 +3,6 @@ import React, { useState, useEffect } from 'react';
 export default function WhatsAppButton() {
   const [phoneNumber, setPhoneNumber] = useState("919203700114");
 
-  useEffect(() => {
-    fetch('/api/settings/contact')
-      .then(res => res.json())
-      .then(data => {
-        if (data.whatsapp) setPhoneNumber(data.whatsapp);
-      })
-      .catch(console.error);
-  }, []);
-
   const message = "Hello, I would like to inquire about your printing services.";
   
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;

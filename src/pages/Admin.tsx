@@ -11,38 +11,7 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'services' | 'testimonials' | 'inquiries' | 'settings'>('dashboard');
   const [dashboardStats, setDashboardStats] = useState({ totalProducts: 0, bulkInquiries: 0, totalInquiries: 0 });
   const [setup2faInfo, setSetup2faInfo] = useState<{qrCodeUrl: string, secret: string, alreadyEnabled?: boolean} | null>(null);
-  const [counters, setCounters] = useState({ clients: '', prints: '', experience: '', quality: '' });
-  const [whatsappSetting, setWhatsappSetting] = useState('');
 
-  useEffect(() => {
-    if (activeTab === 'settings') {
-      fetch('/api/settings/counters').then(res => res.json()).then(data => {
-        setCounters({
-          clients: data.clients || '',
-          prints: data.prints || '',
-          experience: data.experience || '',
-          quality: data.quality || ''
-        });
-      });
-      fetch('/api/settings/contact').then(res => res.json()).then(data => {
-        setWhatsappSetting(data.whatsapp || '');
-      });
-    }
-  }, [activeTab]);
-
-  const handleSaveSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await fetch('/api/admin/settings/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ whatsapp: whatsappSetting })
-      });
-      alert('Contact settings saved successfully');
-    } catch (err) {
-      alert('Error updating settings');
-    }
-  };
   const [setupToken, setSetupToken] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -132,26 +101,10 @@ export default function Admin() {
 
   const setup2fa = async () => {
     try {
-      fetch('/api/settings/counters').then(r => r.json()).then(setCounters).catch(console.error);
       const res = await fetch('/api/admin/2fa/setup');
       setSetup2faInfo(await res.json());
     } catch (e) {
       console.error(e);
-    }
-  };
-
-  const updateCounters = async () => {
-    try {
-      const res = await fetch('/api/admin/settings/counters', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(counters)
-      });
-      if (res.ok) alert('Counters updated successfully!');
-      else alert('Failed to update counters');
-    } catch (e) {
-      console.error(e);
-      alert('Failed to update counters');
     }
   };
 
@@ -430,7 +383,7 @@ export default function Admin() {
             onClick={() => { setActiveTab('settings'); setup2fa(); }}
             className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'settings' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
           >
-            <Users className="mr-3 h-5 w-5" /> Settings (2FA)
+            <Users className="mr-3 h-5 w-5" /> Security (2FA)
           </button>
         </nav>
         <div className="p-4 border-t border-slate-800">
@@ -495,31 +448,7 @@ export default function Admin() {
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Website Settings</h2>
-            
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8 max-w-xl">
-              <h3 className="text-lg font-semibold mb-4">Contact Details</h3>
-              <form onSubmit={handleSaveSettings} className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-1">WhatsApp Number (with country code, no space)</label>
-                  <input
-                    type="text"
-                    value={whatsappSetting}
-                    onChange={(e) => setWhatsappSetting(e.target.value)}
-                    placeholder="e.g. 919203700114"
-                    className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#F27C21]"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="bg-[#F27C21] hover:bg-[#e06b12] text-white px-4 py-2 rounded-lg transition-colors font-medium"
-                >
-                  Save Contact Settings
-                </button>
-              </form>
-            </div>
-
-            <h2 className="text-2xl font-bold text-slate-900 mb-6 mt-12">Security Settings</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Security Settings</h2>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8 max-w-xl">
               <h3 className="text-lg font-semibold mb-4">Two-Factor Authentication (2FA)</h3>
               
@@ -550,31 +479,6 @@ export default function Admin() {
                   </div>
                 </div>
               )}
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mt-8 max-w-xl">
-              <h3 className="text-lg font-semibold mb-4">Manage Counters (About Page)</h3>
-              <form onSubmit={e => { e.preventDefault(); updateCounters(); }} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Happy Clients</label>
-                  <input type="text" className="w-full border p-2 rounded" value={counters.clients} onChange={e => setCounters({...counters, clients: e.target.value})} placeholder="e.g. 5,000+" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Prints Delivered</label>
-                  <input type="text" className="w-full border p-2 rounded" value={counters.prints} onChange={e => setCounters({...counters, prints: e.target.value})} placeholder="e.g. 1M+" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Years Experience</label>
-                  <input type="text" className="w-full border p-2 rounded" value={counters.experience} onChange={e => setCounters({...counters, experience: e.target.value})} placeholder="e.g. 15+" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Quality Guaranteed</label>
-                  <input type="text" className="w-full border p-2 rounded" value={counters.quality} onChange={e => setCounters({...counters, quality: e.target.value})} placeholder="e.g. 100%" />
-                </div>
-                <button type="submit" className="bg-[#F27C21] text-white px-4 py-2 rounded focus:outline-none hover:bg-[#d66b1c]">
-                  Save Counters
-                </button>
-              </form>
             </div>
           </div>
         )}

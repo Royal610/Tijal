@@ -33,9 +33,7 @@ const originalQuery = pool.query.bind(pool);
       if (typeof sql === 'string') {
         if (sql.includes('FROM admins WHERE username')) {
           if (!mockAdminStore) {
-            const bcrypt = await import('bcryptjs');
-            const hash = await bcrypt.default.hash('admin', 10);
-            mockAdminStore = { username: 'admin', password_hash: hash, two_factor_enabled: 0, two_factor_secret: null };
+            mockAdminStore = { username: 'admin', password: 'admin', two_factor_enabled: 0, two_factor_secret: null };
           }
           return [[mockAdminStore], []] as any;
         } else if (sql.includes('UPDATE admins SET two_factor_secret')) {
@@ -44,8 +42,8 @@ const originalQuery = pool.query.bind(pool);
         } else if (sql.includes('UPDATE admins SET two_factor_enabled')) {
           if (mockAdminStore) mockAdminStore.two_factor_enabled = 1;
           return [[], []] as any;
-        } else if (sql.includes('UPDATE admins SET password_hash')) {
-          if (mockAdminStore) mockAdminStore.password_hash = args[1][0];
+        } else if (sql.includes('UPDATE admins SET password')) {
+          if (mockAdminStore) mockAdminStore.password = args[1][0];
           return [[], []] as any;
         }
       }
@@ -125,30 +123,28 @@ export async function initializeDb() {
     await pool.query('ALTER TABLE product_variants MODIFY COLUMN image_url LONGTEXT');
   } catch(e) {}
 
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS admin_settings (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      setting_key VARCHAR(255) UNIQUE NOT NULL,
-      setting_value TEXT NOT NULL
-    )
-  `);
+  try {
+    await pool.query('DROP TABLE IF EXISTS admin_settings');
+  } catch(e) {}
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS admins (
       id INT AUTO_INCREMENT PRIMARY KEY,
       username VARCHAR(255) UNIQUE NOT NULL,
-      password_hash VARCHAR(255) NOT NULL,
+      password VARCHAR(255) NOT NULL,
       two_factor_secret VARCHAR(255),
       two_factor_enabled BOOLEAN DEFAULT FALSE
     )
   `);
 
+  try {
+    await pool.query('ALTER TABLE admins CHANGE COLUMN password_hash password VARCHAR(255) NOT NULL');
+  } catch(e) {}
+
   // Seed default admin
   const [adminRows] = await pool.query<{count: number}[] & mysql.RowDataPacket[]>('SELECT COUNT(*) AS count FROM admins');
   if (adminRows[0].count === 0) {
-    const bcrypt = await import('bcryptjs');
-    const hash = await bcrypt.default.hash('admin', 10);
-    await pool.query('INSERT INTO admins (username, password_hash) VALUES (?, ?)', ['admin', hash]);
+    await pool.query('INSERT INTO admins (username, password) VALUES (?, ?)', ['admin', 'admin123']);
   }
 
   // Seed initial data if empty
