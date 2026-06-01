@@ -177,7 +177,7 @@ export default function ProductDetails() {
     <div className="bg-slate-50 min-h-screen pb-20">
       <SEO 
         title={`${product.title} | Premium ${product.category}`}
-        description={`${product.description.substring(0, 160)}...`}
+        description={`${(product.description || '').substring(0, 160)}...`}
         image={product.image_url}
         url={`https://viyomkeshartvision.com/services/${id}`}
         type="product"

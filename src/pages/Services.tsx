@@ -19,7 +19,7 @@ export default function Services() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const categories = ['All', ...Array.from(new Set(services.map(s => s.category)))];
+  const categories = ['All', ...Array.from(new Set(services.map(s => s.category))).filter(c => c !== 'All')];
 
   const filteredServices = services.filter(s => {
     const matchesCategory = selectedCategory === 'All' || s.category === selectedCategory;
