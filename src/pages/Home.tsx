@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight, Printer, Shield, Zap, Heart } from 'lucide-react';
 import SEO from '../components/SEO';
+import TestimonialCarousel from '../components/TestimonialCarousel';
 
 export default function Home() {
   const [featuredServices, setFeaturedServices] = useState<any[]>([]);
   const [clients, setClients] = useState<any[]>([]);
+  const [heroImage, setHeroImage] = useState('https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?auto=format&fit=crop&q=80&w=1200');
 
   useEffect(() => {
     fetch('/api/services')
@@ -23,6 +25,15 @@ export default function Home() {
       .then(data => {
         if (Array.isArray(data)) {
           setClients(data);
+        }
+      })
+      .catch(err => console.error(err));
+
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.home_hero_image) {
+          setHeroImage(data.home_hero_image);
         }
       })
       .catch(err => console.error(err));
@@ -85,7 +96,7 @@ export default function Home() {
             >
               <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-2xl">
                 <img 
-                  src="https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?auto=format&fit=crop&q=80&w=1200" 
+                  src={heroImage} 
                   alt="High quality printing" 
                   className="w-full aspect-[4/5] object-cover"
                 />
@@ -188,6 +199,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Testimonials Carousel */}
+      <TestimonialCarousel />
 
       {/* CTA Section */}
       <section className="py-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

@@ -65,7 +65,13 @@ export default function Admin() {
   const [aboutCounters, setAboutCounters] = useState<any[]>([]);
   const [directors, setDirectors] = useState<any[]>([]);
   const [clients, setClients] = useState<any[]>([]);
-  const [siteSettings, setSiteSettings] = useState({ facebook_url: '', instagram_url: '', twitter_url: '' });
+  const [siteSettings, setSiteSettings] = useState({ 
+    facebook_url: '', 
+    instagram_url: '', 
+    twitter_url: '',
+    home_hero_image: '',
+    about_hero_image: ''
+  });
   const [subscribers, setSubscribers] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [saveStatus, setSaveStatus] = useState<string>('');
@@ -1017,6 +1023,39 @@ export default function Admin() {
                     placeholder="https://twitter.com/your-handle"
                     className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#F27C21] focus:border-transparent outline-none transition-all"
                   />
+                </div>
+
+                <div className="border-t border-slate-100 pt-6">
+                  <h3 className="text-lg font-bold text-slate-800 mb-4">Page Headers</h3>
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">Home Hero Image URL</label>
+                      <input 
+                        type="url" 
+                        value={siteSettings.home_hero_image}
+                        onChange={(e) => setSiteSettings({...siteSettings, home_hero_image: e.target.value})}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#F27C21] focus:border-transparent outline-none transition-all"
+                      />
+                      {siteSettings.home_hero_image && (
+                        <img src={siteSettings.home_hero_image} alt="Preview" className="mt-2 h-20 w-40 object-cover rounded-lg border" />
+                      )}
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">About Hero Image URL</label>
+                      <input 
+                        type="url" 
+                        value={siteSettings.about_hero_image}
+                        onChange={(e) => setSiteSettings({...siteSettings, about_hero_image: e.target.value})}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#F27C21] focus:border-transparent outline-none transition-all"
+                      />
+                      {siteSettings.about_hero_image && (
+                        <img src={siteSettings.about_hero_image} alt="Preview" className="mt-2 h-20 w-40 object-cover rounded-lg border" />
+                      )}
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="pt-4">

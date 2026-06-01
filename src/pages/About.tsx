@@ -11,6 +11,7 @@ export default function About() {
   });
   const [directors, setDirectors] = useState<any[]>([]);
   const [clients, setClients] = useState<any[]>([]);
+  const [heroImage, setHeroImage] = useState('https://images.unsplash.com/photo-1629904853716-f0bc54eea481?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80');
 
   useEffect(() => {
     fetch('/api/about-counters')
@@ -44,6 +45,15 @@ export default function About() {
         if (Array.isArray(data)) setClients(data);
       })
       .catch(console.error);
+
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.about_hero_image) {
+          setHeroImage(data.about_hero_image);
+        }
+      })
+      .catch(err => console.error(err));
   }, []);
 
   return (
@@ -85,7 +95,7 @@ export default function About() {
             <div className="absolute inset-0 bg-gradient-to-tr from-[#F27C21] to-[#d5a46d] rounded-[2rem] transform rotate-3 scale-105 opacity-20 group-hover:rotate-6 transition-transform duration-500"></div>
             <div className="relative h-[500px] rounded-[2rem] overflow-hidden shadow-2xl border border-slate-100 transform transition-transform duration-500 group-hover:-translate-y-2">
               <img 
-                src="https://images.unsplash.com/photo-1629904853716-f0bc54eea481?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
+                src={heroImage} 
                 alt="Our Printing Facility" 
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 referrerPolicy="no-referrer"

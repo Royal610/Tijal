@@ -266,7 +266,9 @@ export async function initializeDb() {
     const initialSettings = [
       ['facebook_url', 'https://facebook.com'],
       ['instagram_url', 'https://instagram.com'],
-      ['twitter_url', 'https://twitter.com']
+      ['twitter_url', 'https://twitter.com'],
+      ['home_hero_image', 'https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?auto=format&fit=crop&q=80&w=2000'],
+      ['about_hero_image', 'https://images.unsplash.com/photo-1507925921958-8a62f3d1a50d?auto=format&fit=crop&q=80&w=2048']
     ];
     for (const [key, val] of initialSettings) {
       await pool.query('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?)', [key, val]);
