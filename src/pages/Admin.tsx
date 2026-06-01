@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Plus, LogOut, LayoutDashboard, MessageSquare, Users } from 'lucide-react';
+import { Trash2, Plus, LogOut, LayoutDashboard, MessageSquare, Users, Settings, Shield } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function Admin() {
@@ -8,7 +8,7 @@ export default function Admin() {
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
   const [require2fa, setRequire2fa] = useState(false);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'services' | 'testimonials' | 'inquiries' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'services' | 'testimonials' | 'inquiries' | 'directors' | 'clients' | 'about' | 'site_settings' | 'newsletter' | 'security'>('dashboard');
   const [dashboardStats, setDashboardStats] = useState({ totalProducts: 0, bulkInquiries: 0, totalInquiries: 0 });
   const [setup2faInfo, setSetup2faInfo] = useState<{qrCodeUrl: string, secret: string, alreadyEnabled?: boolean} | null>(null);
 
@@ -65,6 +65,9 @@ export default function Admin() {
   const [aboutCounters, setAboutCounters] = useState<any[]>([]);
   const [directors, setDirectors] = useState<any[]>([]);
   const [clients, setClients] = useState<any[]>([]);
+  const [siteSettings, setSiteSettings] = useState({ facebook_url: '', instagram_url: '', twitter_url: '' });
+  const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [saveStatus, setSaveStatus] = useState<string>('');
 
   // Form states
@@ -90,7 +93,14 @@ export default function Admin() {
       if (activeTab === 'dashboard') {
         fetch('/api/admin/dashboard').then(r => r.json()).then(setDashboardStats).catch(console.error);
       }
+      fetch('/api/inquiries/unread-count').then(r => r.json()).then(data => setUnreadCount(data.count)).catch(console.error);
       fetchData();
+
+      // Poll for unread count
+      const interval = setInterval(() => {
+        fetch('/api/inquiries/unread-count').then(r => r.json()).then(data => setUnreadCount(data.count)).catch(console.error);
+      }, 30000);
+      return () => clearInterval(interval);
     }
   }, [isAuthenticated, activeTab]);
 
@@ -192,6 +202,14 @@ export default function Admin() {
         const res = await fetch('/api/clients');
         const data = await res.json();
         if (Array.isArray(data)) setClients(data);
+      } else if (activeTab === 'site_settings') {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        setSiteSettings(data);
+      } else if (activeTab === 'newsletter') {
+        const res = await fetch('/api/newsletter/subscribers');
+        const data = await res.json();
+        if (Array.isArray(data)) setSubscribers(data);
       }
     } catch (err) {
       console.error(err);
@@ -300,6 +318,37 @@ export default function Admin() {
     } catch (err) {
       console.error(err);
       setSaveStatus('Error updating client');
+    }
+  };
+
+  const saveSiteSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setSaveStatus('Saving settings...');
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(siteSettings)
+      });
+      if (res.ok) {
+        setSaveStatus('Settings saved successfully!');
+        setTimeout(() => setSaveStatus(''), 3000);
+      }
+    } catch (err) {
+      console.error(err);
+      setSaveStatus('Error saving settings');
+    }
+  };
+
+  const deleteSubscriber = async (id: number) => {
+    if (!confirm('Are you sure you want to remove this subscriber?')) return;
+    try {
+      const res = await fetch(`/api/newsletter/subscribers/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        fetchData();
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -426,6 +475,16 @@ export default function Admin() {
     }
   };
 
+  const markAsRead = async (id: number) => {
+    try {
+      await fetch(`/api/inquiries/${id}/read`, { method: 'PUT' });
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      setInquiries(prev => prev.map(inq => inq.id === id ? { ...inq, is_read: 1 } : inq));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
 
   if (!isAuthenticated) {
@@ -540,9 +599,16 @@ export default function Admin() {
           </button>
           <button
             onClick={() => setActiveTab('inquiries')}
-            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'inquiries' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${activeTab === 'inquiries' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
           >
-            <MessageSquare className="mr-3 h-5 w-5" /> Inquiries
+            <div className="flex items-center">
+              <MessageSquare className="mr-3 h-5 w-5" /> Inquiries
+            </div>
+            {unreadCount > 0 && (
+              <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                {unreadCount}
+              </span>
+            )}
           </button>
           <button
             onClick={() => setActiveTab('about')}
@@ -563,10 +629,22 @@ export default function Admin() {
             <Users className="mr-3 h-5 w-5" /> Manage Clients
           </button>
           <button
-            onClick={() => { setActiveTab('settings'); setup2fa(); }}
-            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'settings' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
+            onClick={() => setActiveTab('site_settings')}
+            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'site_settings' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
           >
-            <Users className="mr-3 h-5 w-5" /> Security (2FA)
+            <Settings className="mr-3 h-5 w-5" /> Site Settings
+          </button>
+          <button
+            onClick={() => setActiveTab('newsletter')}
+            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'newsletter' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
+          >
+            <MessageSquare className="mr-3 h-5 w-5" /> Newsletter
+          </button>
+          <button
+            onClick={() => { setActiveTab('security'); setup2fa(); }}
+            className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${activeTab === 'security' ? 'bg-[#F27C21]' : 'hover:bg-slate-800'}`}
+          >
+            <Shield className="mr-3 h-5 w-5" /> Security (2FA)
           </button>
         </nav>
         <div className="p-4 border-t border-slate-800">
@@ -892,8 +970,112 @@ export default function Admin() {
           </div>
         )}
 
-        {/* Settings Tab */}
-        {activeTab === 'settings' && (
+        {/* Site Settings Tab */}
+        {activeTab === 'site_settings' && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-slate-900">Site Settings</h2>
+              {saveStatus && (
+                <span className={`text-sm font-medium px-4 py-2 rounded ${saveStatus.includes('successfully') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  {saveStatus}
+                </span>
+              )}
+            </div>
+            
+            <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200 max-w-2xl">
+              <p className="text-slate-600 mb-8">Configure your business social media presence. These links will appear in the footer across the entire website.</p>
+              
+              <form onSubmit={saveSiteSettings} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Facebook URL</label>
+                  <input 
+                    type="url" 
+                    value={siteSettings.facebook_url}
+                    onChange={(e) => setSiteSettings({...siteSettings, facebook_url: e.target.value})}
+                    placeholder="https://facebook.com/your-page"
+                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#F27C21] focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Instagram URL</label>
+                  <input 
+                    type="url" 
+                    value={siteSettings.instagram_url}
+                    onChange={(e) => setSiteSettings({...siteSettings, instagram_url: e.target.value})}
+                    placeholder="https://instagram.com/your-handle"
+                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#F27C21] focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Twitter URL</label>
+                  <input 
+                    type="url" 
+                    value={siteSettings.twitter_url}
+                    onChange={(e) => setSiteSettings({...siteSettings, twitter_url: e.target.value})}
+                    placeholder="https://twitter.com/your-handle"
+                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#F27C21] focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+                
+                <div className="pt-4">
+                  <button 
+                    type="submit"
+                    className="w-full bg-[#F27C21] text-white py-4 rounded-xl font-bold hover:bg-[#d66b1c] transition-all shadow-lg shadow-[#F27C21]/20 active:scale-[0.98]"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Newsletter Tab */}
+        {activeTab === 'newsletter' && (
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Newsletter Subscribers</h2>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Email Address</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Subscribed Date</th>
+                    <th className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-slate-200">
+                  {subscribers.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="px-6 py-10 text-center text-slate-500 italic">No subscribers yet.</td>
+                    </tr>
+                  ) : (
+                    subscribers.map((sub) => (
+                      <tr key={sub.id} className="hover:bg-slate-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{sub.email}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                          {new Date(sub.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                          <button 
+                            onClick={() => deleteSubscriber(sub.id)}
+                            className="text-red-500 hover:text-red-700 font-bold"
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Security / 2FA Tab */}
+        {activeTab === 'security' && (
           <div>
             <h2 className="text-2xl font-bold text-slate-900 mb-6">Security Settings</h2>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8 max-w-xl">
@@ -1161,16 +1343,23 @@ export default function Admin() {
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-200">
                   {inquiries.map(inq => (
-                    <tr key={inq.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                    <tr 
+                      key={inq.id} 
+                      className={`hover:bg-slate-50 transition-colors ${!inq.is_read ? 'bg-orange-50/50' : ''}`}
+                      onMouseEnter={() => {
+                        if (!inq.is_read) markAsRead(inq.id);
+                      }}
+                    >
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${!inq.is_read ? 'font-bold text-slate-900' : 'text-slate-500'}`}>
                         {new Date(inq.created_at).toLocaleDateString()}
+                        {!inq.is_read && <span className="ml-2 inline-block w-2 h-2 bg-brand-primary rounded-full" />}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{inq.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${!inq.is_read ? 'font-black text-slate-900' : 'font-medium text-slate-900'}`}>{inq.name}</td>
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${!inq.is_read ? 'font-bold text-slate-900' : 'text-slate-500'}`}>
                         <div>{inq.email}</div>
                         <div>{inq.phone}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-500 max-w-xs truncate" title={inq.message}>
+                      <td className={`px-6 py-4 text-sm max-w-xs truncate ${!inq.is_read ? 'font-bold text-slate-900' : 'text-slate-500'}`} title={inq.message}>
                         {inq.message}
                       </td>
                     </tr>

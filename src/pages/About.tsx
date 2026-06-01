@@ -1,5 +1,6 @@
 import { Printer, Users, Award, Clock, ArrowRight, Target, Lightbulb, Zap, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import SEO from '../components/SEO';
 
 export default function About() {
   const [counters, setCounters] = useState({
@@ -47,6 +48,10 @@ export default function About() {
 
   return (
     <div className="bg-white scroll-smooth">
+      <SEO 
+        title="About Our Journey | Printing Experts in Chhindwara"
+        description="Discover the story behind Viyomkesh Art Vision. From a small press to a leading printing solution provider, learn about our mission to deliver premium quality with precision."
+      />
       {/* Header / Hero Section */}
       <div className="relative bg-slate-900 py-32 overflow-hidden">
         {/* Dynamic Abstract Background Elements */}

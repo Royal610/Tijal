@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight, Printer, Shield, Zap, Heart } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function Home() {
   const [featuredServices, setFeaturedServices] = useState<any[]>([]);
@@ -36,6 +37,10 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-hidden">
+      <SEO 
+        title="Viyomkesh Art Vision | Premium Printing, ID Cards & Branding"
+        description="Experience world-class printing with Viyomkesh Art Vision. Specializing in corporate ID cards, premium visiting cards, digital printing, and custom branding solutions in Jamai Chhindwara."
+      />
       
       {/* Hero Section */}
       <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-32 overflow-hidden">

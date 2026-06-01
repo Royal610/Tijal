@@ -427,7 +427,101 @@ async function startServer() {
     res.json({ success: true });
   });
 
+  // Site Settings API
+  app.get('/api/settings', async (req, res) => {
+    const [settings] = await pool.query<any>('SELECT * FROM site_settings');
+    const settingsObj = settings.reduce((acc: any, curr: any) => {
+      acc[curr.setting_key] = curr.setting_value;
+      return acc;
+    }, {});
+    res.json(settingsObj);
+  });
+
+  app.put('/api/settings', requireAdmin, async (req, res) => {
+    const settings = req.body;
+    for (const [key, value] of Object.entries(settings)) {
+      await pool.query('INSERT INTO site_settings (setting_key, setting_value) ON DUPLICATE KEY UPDATE setting_value = ?', [key, value]);
+    }
+    res.json({ success: true });
+  });
+  
+  // Newsletter API
+  app.post('/api/newsletter/subscribe', async (req, res) => {
+    const { email } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Invalid email address' });
+    }
+    try {
+      await pool.query('INSERT INTO newsletter_subscribers (email) VALUES (?)', [email]);
+      res.json({ success: true, message: 'Subscribed successfully' });
+    } catch (error: any) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        return res.status(400).json({ error: 'Email already subscribed' });
+      }
+      res.status(500).json({ error: 'Failed to subscribe' });
+    }
+  });
+
+  app.get('/api/newsletter/subscribers', requireAdmin, async (req, res) => {
+    const [subscribers] = await pool.query<any>('SELECT * FROM newsletter_subscribers ORDER BY created_at DESC');
+    res.json(subscribers);
+  });
+
+  app.delete('/api/newsletter/subscribers/:id', requireAdmin, async (req, res) => {
+    await pool.query('DELETE FROM newsletter_subscribers WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  });
+  
   // Inquiries API
+  app.get('/api/inquiries/unread-count', requireAdmin, async (req, res) => {
+    const [rows] = await pool.query<any>('SELECT COUNT(*) as count FROM inquiries WHERE is_read = FALSE');
+    res.json({ count: rows[0].count });
+  });
+
+  // Sitemap generator
+  app.get('/sitemap.xml', async (req, res) => {
+    const baseUrl = 'https://viyomkeshartvision.com';
+    const staticPages = ['', '/about', '/services', '/testimonials', '/contact'];
+    
+    try {
+      const [services] = await pool.query<any>('SELECT id FROM services');
+      
+      let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+      xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+      
+      // Static pages
+      staticPages.forEach(page => {
+        xml += '  <url>\n';
+        xml += `    <loc>${baseUrl}${page}</loc>\n`;
+        xml += '    <changefreq>weekly</changefreq>\n';
+        xml += '    <priority>0.8</priority>\n';
+        xml += '  </url>\n';
+      });
+      
+      // Dynamic service pages
+      services.forEach((service: any) => {
+        xml += '  <url>\n';
+        xml += `    <loc>${baseUrl}/services/${service.id}</loc>\n`;
+        xml += '    <changefreq>monthly</changefreq>\n';
+        xml += '    <priority>0.6</priority>\n';
+        xml += '  </url>\n';
+      });
+      
+      xml += '</urlset>';
+      
+      res.header('Content-Type', 'application/xml');
+      res.send(xml);
+    } catch (error) {
+      console.error('Sitemap error:', error);
+      res.status(500).send('Error generating sitemap');
+    }
+  });
+
+  app.put('/api/inquiries/:id/read', requireAdmin, async (req, res) => {
+    await pool.query('UPDATE inquiries SET is_read = TRUE WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  });
+
   app.get('/api/inquiries', requireAdmin, async (req, res) => {
     const [inquiries] = await pool.query<any>('SELECT * FROM inquiries ORDER BY created_at DESC');
     res.json(inquiries);

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Search, Filter, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import SEO from '../components/SEO';
 
 interface Service {
   id: number;
@@ -44,6 +45,10 @@ export default function Services() {
 
   return (
     <div className="bg-white min-h-screen pb-20">
+      <SEO 
+        title="Our Premium Services | ID Cards, Banners & More"
+        description="Explore our wide range of professional printing services. From corporate ID cards and high-end visiting cards to digital printing and artisanal custom gifts."
+      />
       {/* Header */}
       <section className="relative pt-24 pb-32 overflow-hidden bg-slate-900 text-white">
         <div className="absolute inset-0 opacity-20">

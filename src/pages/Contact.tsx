@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import SEO from '../components/SEO';
 
 export default function Contact() {
   const location = useLocation();
@@ -57,6 +58,10 @@ export default function Contact() {
 
   return (
     <div className="bg-slate-50 min-h-screen">
+      <SEO 
+        title="Contact Us | Request Quote & Support"
+        description="Get in touch with Viyomkesh Art Vision. Contact us for professional printing quotes, ID card inquiries, or any branding needs in Jamai Chhindwara. We're here to help."
+      />
       {/* Header */}
       <div className="bg-slate-900 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

@@ -92,9 +92,14 @@ export async function initializeDb() {
       email VARCHAR(255) NOT NULL,
       phone VARCHAR(255),
       message TEXT NOT NULL,
+      is_read BOOLEAN DEFAULT FALSE,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  try {
+    await pool.query('ALTER TABLE inquiries ADD COLUMN is_read BOOLEAN DEFAULT FALSE');
+  } catch(e) {}
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS product_reviews (
@@ -247,6 +252,34 @@ export async function initializeDb() {
   try {
     await pool.query('ALTER TABLE clients MODIFY COLUMN image_url LONGTEXT');
   } catch(e) {}
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS site_settings (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      setting_key VARCHAR(100) UNIQUE NOT NULL,
+      setting_value TEXT
+    )
+  `);
+
+  const [settingsRows] = await pool.query<{count: number}[] & mysql.RowDataPacket[]>('SELECT COUNT(*) AS count FROM site_settings');
+  if (settingsRows[0].count === 0) {
+    const initialSettings = [
+      ['facebook_url', 'https://facebook.com'],
+      ['instagram_url', 'https://instagram.com'],
+      ['twitter_url', 'https://twitter.com']
+    ];
+    for (const [key, val] of initialSettings) {
+      await pool.query('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?)', [key, val]);
+    }
+  }
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 
   const [directorRows] = await pool.query<{count: number}[] & mysql.RowDataPacket[]>('SELECT COUNT(*) AS count FROM directors');
   if (directorRows[0].count === 0) {

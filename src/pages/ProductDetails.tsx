@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, Minus, Plus, Star } from 'lucide-react';
+import SEO from '../components/SEO';
 
 interface Service {
   id: number;
@@ -174,6 +175,13 @@ export default function ProductDetails() {
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20">
+      <SEO 
+        title={`${product.title} | Premium ${product.category}`}
+        description={`${product.description.substring(0, 160)}...`}
+        image={product.image_url}
+        url={`https://viyomkeshartvision.com/services/${id}`}
+        type="product"
+      />
       {/* Header */}
       <div className="bg-slate-900 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
