@@ -17,6 +17,9 @@ const storage = multer.diskStorage({
     let dest = 'public/uploads/';
     if (type === 'director') dest += 'directors/';
     else if (type === 'client') dest += 'clients/';
+    else if (type === 'service') dest += 'services/';
+    else if (type === 'variant') dest += 'variants/';
+    else if (type === 'setting') dest += 'settings/';
     cb(null, dest);
   },
   filename: (req, file, cb) => {
@@ -30,6 +33,22 @@ const upload = multer({ storage: storage });
 async function startServer() {
   const app = express();
   const PORT = 3000;
+
+  // Create upload directories if they don't exist
+  const fs = await import('fs');
+  const dirs = [
+    'public/uploads',
+    'public/uploads/directors',
+    'public/uploads/clients',
+    'public/uploads/services',
+    'public/uploads/variants',
+    'public/uploads/settings'
+  ];
+  dirs.forEach(dir => {
+    if (!fs.existsSync(path.join(process.cwd(), dir))) {
+      fs.mkdirSync(path.join(process.cwd(), dir), { recursive: true });
+    }
+  });
 
   // Try to initialize DB, but don't crash if it fails
   initializeDb().then(() => {
@@ -194,6 +213,9 @@ async function startServer() {
     let url = `/uploads/`;
     if (type === 'director') url += `directors/${req.file.filename}`;
     else if (type === 'client') url += `clients/${req.file.filename}`;
+    else if (type === 'service') url += `services/${req.file.filename}`;
+    else if (type === 'variant') url += `variants/${req.file.filename}`;
+    else if (type === 'setting') url += `settings/${req.file.filename}`;
     else url += `${req.file.filename}`;
     
     res.json({ url });

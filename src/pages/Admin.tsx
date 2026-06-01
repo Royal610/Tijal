@@ -24,7 +24,7 @@ export default function Admin() {
     });
   };
 
-  const handleFileServerUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'director' | 'client', setter: (val: string) => void) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, setter: (val: string) => void, type: 'director' | 'client' | 'service' | 'variant' | 'setting' = 'service') => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     
@@ -49,13 +49,6 @@ export default function Admin() {
       console.error(err);
       setSaveStatus('Error uploading');
     }
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, setter: (val: string) => void) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    const base64 = await convertToBase64(files[0]);
-    setter(base64);
   };
 
   // Data states
@@ -806,7 +799,7 @@ export default function Admin() {
                           <input 
                             type="file"
                             accept="image/*"
-                            onChange={(e) => handleImageUpload(e, (url) => handleDirectorChange(index, 'image_url', url))}
+                            onChange={(e) => handleImageUpload(e, (url) => handleDirectorChange(index, 'image_url', url), 'director')}
                             className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#F27C21]/10 file:text-[#F27C21] hover:file:bg-[#F27C21]/20"
                           />
                         </div>
@@ -870,7 +863,7 @@ export default function Admin() {
                   <input 
                     type="file" 
                     accept="image/*" 
-                    onChange={(e) => handleImageUpload(e, (url) => setNewClient({...newClient, image_url: url}))} 
+                    onChange={(e) => handleImageUpload(e, (url) => setNewClient({...newClient, image_url: url}), 'client')} 
                     className="text-sm" 
                   />
                 </div>
@@ -920,7 +913,7 @@ export default function Admin() {
                         <input 
                           type="file" 
                           accept="image/*" 
-                          onChange={(e) => handleImageUpload(e, (url) => setEditClientForm({...editClientForm, image_url: url}))}
+                          onChange={(e) => handleImageUpload(e, (url) => setEditClientForm({...editClientForm, image_url: url}), 'client')}
                           className="text-xs flex-1"
                         />
                         {editClientForm.image_url && (
@@ -1029,31 +1022,55 @@ export default function Admin() {
                   <h3 className="text-lg font-bold text-slate-800 mb-4">Page Headers</h3>
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-2">Home Hero Image URL</label>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">Home Hero Image</label>
+                      <div className="flex items-center space-x-4 mb-2">
+                        <div className="flex-1">
+                          <input 
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageUpload(e, (url) => setSiteSettings({...siteSettings, home_hero_image: url}), 'setting')}
+                            className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#F27C21]/10 file:text-[#F27C21] hover:file:bg-[#F27C21]/20"
+                          />
+                        </div>
+                        {siteSettings.home_hero_image && (
+                          <div className="w-20 h-12 rounded overflow-hidden border">
+                            <img src={siteSettings.home_hero_image} alt="Preview" className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                      </div>
                       <input 
                         type="url" 
                         value={siteSettings.home_hero_image}
                         onChange={(e) => setSiteSettings({...siteSettings, home_hero_image: e.target.value})}
-                        placeholder="https://images.unsplash.com/..."
-                        className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#F27C21] focus:border-transparent outline-none transition-all"
+                        placeholder="Or enter image URL..."
+                        className="w-full px-4 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-[#F27C21] outline-none transition-all"
                       />
-                      {siteSettings.home_hero_image && (
-                        <img src={siteSettings.home_hero_image} alt="Preview" className="mt-2 h-20 w-40 object-cover rounded-lg border" />
-                      )}
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-2">About Hero Image URL</label>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">About Hero Image</label>
+                      <div className="flex items-center space-x-4 mb-2">
+                        <div className="flex-1">
+                          <input 
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageUpload(e, (url) => setSiteSettings({...siteSettings, about_hero_image: url}), 'setting')}
+                            className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#F27C21]/10 file:text-[#F27C21] hover:file:bg-[#F27C21]/20"
+                          />
+                        </div>
+                        {siteSettings.about_hero_image && (
+                          <div className="w-20 h-12 rounded overflow-hidden border">
+                            <img src={siteSettings.about_hero_image} alt="Preview" className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                      </div>
                       <input 
                         type="url" 
                         value={siteSettings.about_hero_image}
                         onChange={(e) => setSiteSettings({...siteSettings, about_hero_image: e.target.value})}
-                        placeholder="https://images.unsplash.com/..."
-                        className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#F27C21] focus:border-transparent outline-none transition-all"
+                        placeholder="Or enter image URL..."
+                        className="w-full px-4 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-[#F27C21] outline-none transition-all"
                       />
-                      {siteSettings.about_hero_image && (
-                        <img src={siteSettings.about_hero_image} alt="Preview" className="mt-2 h-20 w-40 object-cover rounded-lg border" />
-                      )}
                     </div>
                   </div>
                 </div>
@@ -1168,7 +1185,7 @@ export default function Admin() {
                     <input type="text" placeholder="Category" required className="border p-2 rounded" value={newService.category} onChange={e => setNewService({...newService, category: e.target.value})} />
                     <div className="border p-2 rounded flex items-center justify-between">
                       <span className="text-sm text-slate-500 mr-2">Product Image:</span>
-                      <input type="file" accept="image/*" required onChange={e => handleImageUpload(e, val => setNewService({...newService, image_url: val}))} className="text-sm" />
+                      <input type="file" accept="image/*" required onChange={e => handleImageUpload(e, val => setNewService({...newService, image_url: val}), 'service')} className="text-sm" />
                     </div>
                     <input type="text" placeholder="Expected Number of Varieties (e.g., 5)" className="border p-2 rounded" />
                     <input type="text" placeholder="Base Price (e.g., ₹10 / unit)" className="border p-2 rounded" value={newService.price} onChange={e => setNewService({...newService, price: e.target.value})} />
@@ -1229,7 +1246,7 @@ export default function Admin() {
                     <input type="text" placeholder="Price (e.g., ₹15)" className="border p-2 rounded" value={newVariant.price} onChange={e => setNewVariant({...newVariant, price: e.target.value})} />
                     <div className="border p-2 rounded md:col-span-2 flex items-center">
                       <span className="text-sm text-slate-500 mr-2">Variant Image:</span>
-                      <input type="file" accept="image/*" onChange={e => handleImageUpload(e, val => setNewVariant({...newVariant, image_url: val}))} className="text-sm" />
+                      <input type="file" accept="image/*" onChange={e => handleImageUpload(e, val => setNewVariant({...newVariant, image_url: val}), 'variant')} className="text-sm" />
                     </div>
                     <button type="submit" className="bg-[#F27C21] text-white px-4 py-2 rounded md:col-span-2 flex items-center justify-center hover:bg-[#d66b1c]">
                       <Plus className="h-4 w-4 mr-2" /> Add Variant
@@ -1256,7 +1273,7 @@ export default function Admin() {
                                 <input type="text" className="border p-2 rounded w-full" value={editVariantForm.title} onChange={e => setEditVariantForm({ ...editVariantForm, title: e.target.value })} required placeholder="Variant Title" />
                                 <div className="border p-2 rounded w-full mt-2 flex items-center bg-white">
                                   <span className="text-xs text-slate-500 mr-2">New Image:</span>
-                                  <input type="file" accept="image/*" onChange={e => handleImageUpload(e, val => setEditVariantForm({...editVariantForm, image_url: val}))} className="text-xs w-full" />
+                                  <input type="file" accept="image/*" onChange={e => handleImageUpload(e, val => setEditVariantForm({...editVariantForm, image_url: val}), 'variant')} className="text-xs w-full" />
                                 </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
