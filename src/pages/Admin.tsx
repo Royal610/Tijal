@@ -1207,8 +1207,8 @@ export default function Admin() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-slate-200">
-                      {services.map(service => (
-                        <tr key={service.id} className="cursor-pointer hover:bg-slate-50" onClick={() => viewVariants(service.id)}>
+                      {services.map((service, idx) => (
+                        <tr key={`adm-srv-${service.id || idx}`} className="cursor-pointer hover:bg-slate-50" onClick={() => viewVariants(service.id)}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <img className="h-10 w-10 rounded-md object-cover" src={(service.image_url && service.image_url.split(',')[0]) || undefined} alt="" referrerPolicy="no-referrer" />
@@ -1265,8 +1265,8 @@ export default function Admin() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-slate-200">
-                      {variants.map(variant => (
-                        <tr key={variant.id}>
+                      {variants.map((variant, idx) => (
+                        <tr key={`adm-var-${variant.id || idx}`}>
                           {editingVariantId === variant.id ? (
                             <>
                               <td className="px-6 py-4 whitespace-nowrap">

@@ -15,7 +15,7 @@ export default function Home() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          setFeaturedServices(data.slice(0, 4));
+          setFeaturedServices(data);
         }
       })
       .catch(err => console.error(err));
@@ -54,7 +54,7 @@ export default function Home() {
       />
       
       {/* Hero Section */}
-      <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-32 overflow-hidden">
+      <section className="relative pt-4 pb-0 lg:pt-8 lg:pb-0 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 overflow-hidden">
           <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-brand-primary/5 rounded-full blur-[120px]" />
           <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[120px]" />
@@ -98,39 +98,16 @@ export default function Home() {
                 <img 
                   src={heroImage} 
                   alt="High quality printing" 
-                  className="w-full aspect-[4/5] object-cover"
+                  className="w-full aspect-square object-cover"
                 />
-              </div>
-              <div className="absolute -bottom-10 -left-10 bg-white p-6 rounded-3xl shadow-2xl z-20 flex items-center space-x-4 hidden sm:flex">
-                <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center text-green-500">
-                  <Zap className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Fast Delivery</p>
-                  <p className="text-lg font-black text-slate-900">Same-Day Service</p>
-                </div>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Trusted By Section (Clients) */}
-      {clients.length > 0 && (
-        <section className="py-10 bg-slate-50/50 border-y border-slate-100">
-          <div className="max-w-7xl mx-auto px-4">
-            <p className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mb-8">Trusted by Global Brands</p>
-            <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 cursor-default">
-              {clients.map((client) => (
-                <img key={client.id} src={client.image_url || undefined} alt={client.name} className="h-8 md:h-10 w-auto object-contain" />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Features Grid */}
-      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="pt-[100px] pb-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 md:mt-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((f, i) => (
             <motion.div
@@ -152,7 +129,7 @@ export default function Home() {
       </section>
 
       {/* Categories / Services Grid */}
-      <section className="py-24 bg-slate-900 text-white rounded-[2.5rem] lg:rounded-[4rem] mx-4 lg:mx-8 relative overflow-hidden">
+      <section className="pt-[100px] pb-24 bg-slate-900 text-white rounded-[2.5rem] lg:rounded-[4rem] mx-4 lg:mx-8 relative overflow-hidden mt-10 md:mt-16">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-brand-primary via-transparent to-transparent" />
         </div>
@@ -164,38 +141,39 @@ export default function Home() {
             <p className="text-slate-400 max-w-2xl mx-auto text-lg">From personal gifts to large-scale corporate branding, we deliver unparalleled quality across every category.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredServices.map((service, i) => (
-              <motion.div
-                key={service.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Link to={`/services/${service.id}`} className="group block focus:outline-none">
-                  <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden mb-6">
-                    <img 
-                      src={service.image_url || undefined} 
-                      alt={service.title} 
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-                    <div className="absolute bottom-6 left-6 right-6">
-                      <p className="text-xs font-bold text-brand-primary uppercase tracking-widest mb-1">{service.category || 'Service'}</p>
-                      <h4 className="text-xl font-bold text-white group-hover:text-brand-primary transition-colors">{service.title}</h4>
+          <div className="relative overflow-hidden">
+            <motion.div 
+              className="flex space-x-8"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ 
+                duration: Math.max(featuredServices.length * 8, 20),
+                repeat: Infinity, 
+                ease: "linear" 
+              }}
+              style={{ width: "fit-content" }}
+            >
+              {[...featuredServices, ...featuredServices].map((service, i) => (
+                <div
+                  key={`home-feat-${service.id}-${i}`}
+                   className="w-[300px] md:w-[400px] shrink-0"
+                >
+                  <Link to={`/services/${service.id}`} className="group block focus:outline-none">
+                    <div className="relative h-[175px] md:h-[300px] rounded-[2rem] overflow-hidden mb-6">
+                      <img 
+                        src={service.image_url || undefined} 
+                        alt={service.title} 
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+                      <div className="absolute bottom-6 left-6 right-6">
+                        <p className="text-xs font-bold text-brand-primary uppercase tracking-widest mb-1">{service.category || 'Service'}</p>
+                        <h4 className="text-xl font-bold text-white group-hover:text-brand-primary transition-colors">{service.title}</h4>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="text-center mt-20">
-            <Link to="/services" className="inline-flex items-center px-10 py-5 bg-white text-slate-900 rounded-full font-black hover:scale-105 transition-transform">
-              View All Services
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Link>
+                  </Link>
+                </div>
+              ))}
+            </motion.div>
           </div>
         </div>
       </section>
@@ -204,7 +182,7 @@ export default function Home() {
       <TestimonialCarousel />
 
       {/* CTA Section */}
-      <section className="py-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="pt-[100px] pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mt-10 md:mt-16">
         <motion.div
            initial={{ opacity: 0, scale: 0.95 }}
            whileInView={{ opacity: 1, scale: 1 }}

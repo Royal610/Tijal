@@ -80,9 +80,9 @@ export default function Services() {
                 <span className="text-sm font-bold uppercase tracking-wider hidden sm:block">Filter</span>
               </div>
               <div className="flex space-x-2">
-                {categories.map(category => (
+                {categories.map((category, idx) => (
                   <button
-                    key={category}
+                    key={`cat-${category}-${idx}`}
                     onClick={() => setSelectedCategory(category)}
                     className={`whitespace-nowrap px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
                       selectedCategory === category
@@ -121,7 +121,7 @@ export default function Services() {
             <AnimatePresence mode="popLayout">
               {filteredServices.map((service, i) => (
                 <motion.div
-                  key={service.id}
+                  key={`srv-${service.id}-${i}`}
                   layout
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}

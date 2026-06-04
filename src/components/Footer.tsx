@@ -63,7 +63,7 @@ export default function Footer() {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-primary/5 rounded-full blur-[140px] -mr-64 -mt-64" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20 text-center md:text-left">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-[60px] text-center md:text-left">
           <div className="space-y-8 flex flex-col items-center md:items-start">
             <Link to="/" className="flex items-center space-x-2">
               <img src="/logo.png" alt="Viyomkesh Art Vision Logo" className="h-14 w-auto bg-white p-2 rounded-2xl" />
@@ -130,7 +130,7 @@ export default function Footer() {
         </div>
 
         {/* Newsletter Section */}
-        <div className="border-t border-white/5 py-16">
+        <div className="border-t border-white/5 py-[60px]">
           <div className="max-w-4xl mx-auto text-center">
             <h3 className="text-white font-display font-black text-2xl mb-4">Join Our Newsletter</h3>
             <p className="text-slate-500 mb-8 max-w-lg mx-auto">Get exclusive updates on new printing techniques, special discounts, and art inspiration directly in your inbox.</p>
@@ -165,7 +165,7 @@ export default function Footer() {
           </div>
         </div>
         
-        <div className="border-t border-white/5 pt-12 flex flex-col md:flex-row justify-between items-center text-xs font-bold uppercase tracking-widest text-slate-600">
+        <div className="border-t border-white/5 pt-[60px] flex flex-col md:flex-row justify-between items-center text-xs font-bold uppercase tracking-widest text-slate-600">
           <div className="flex flex-col items-center md:items-start space-y-2 mb-8 md:mb-0">
             <p>&copy; {new Date().getFullYear()} Viyomkesh Art Vision</p>
             <p>Built with precision by <a href="https://www.royalzinformatics.com" target="_blank" rel="noopener noreferrer" className="text-brand-primary hover:text-white transition-colors">Royalz Informatics</a></p>

@@ -216,11 +216,11 @@ export default function ProductDetails() {
                 <div className="border-t border-slate-200 pt-6">
                   <label className="font-bold text-slate-900 mb-4 block text-lg">Select Option / Category:</label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {variants.map((variant) => {
+                    {variants.map((variant, idx) => {
                       const displayImg = (variant.image_url && variant.image_url.trim() !== '') ? variant.image_url : product?.image_url;
                       return (
                         <div 
-                          key={variant.id} 
+                          key={`pd-var-${variant.id || idx}`} 
                           onClick={() => {
                             setSelectedVariant(variant);
                           }}
