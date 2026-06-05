@@ -11,6 +11,15 @@ export default function Home() {
   const [heroImage, setHeroImage] = useState('https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?auto=format&fit=crop&q=80&w=1200');
 
   useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data.home_hero_image) {
+          setHeroImage(data.home_hero_image);
+        }
+      })
+      .catch(console.error);
+
     fetch('/api/services')
       .then(res => res.json())
       .then(data => {

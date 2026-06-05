@@ -14,6 +14,15 @@ export default function About() {
   const [heroImage, setHeroImage] = useState('https://images.unsplash.com/photo-1629904853716-f0bc54eea481?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80');
 
   useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data.about_hero_image) {
+          setHeroImage(data.about_hero_image);
+        }
+      })
+      .catch(console.error);
+
     fetch('/api/about-counters')
       .then(res => res.json())
       .then(data => {

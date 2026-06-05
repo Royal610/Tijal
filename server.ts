@@ -462,7 +462,7 @@ async function startServer() {
   app.put('/api/settings', requireAdmin, async (req, res) => {
     const settings = req.body;
     for (const [key, value] of Object.entries(settings)) {
-      await pool.query('INSERT INTO site_settings (setting_key, setting_value) ON DUPLICATE KEY UPDATE setting_value = ?', [key, value]);
+      await pool.query('INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?', [key, value, value]);
     }
     res.json({ success: true });
   });
