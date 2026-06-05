@@ -57,7 +57,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <div className="bg-transparent min-h-screen">
       <SEO 
         title="Contact Us | Request Quote & Support"
         description="Get in touch with Viyomkesh Art Vision. Contact us for professional printing quotes, ID card inquiries, or any branding needs in Jamai Chhindwara. We're here to help."

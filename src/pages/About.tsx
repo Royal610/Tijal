@@ -57,7 +57,7 @@ export default function About() {
   }, []);
 
   return (
-    <div className="bg-white scroll-smooth">
+    <div className="bg-transparent scroll-smooth">
       <SEO 
         title="About Our Journey | Printing Experts in Chhindwara"
         description="Discover the story behind Viyomkesh Art Vision. From a small press to a leading printing solution provider, learn about our mission to deliver premium quality with precision."

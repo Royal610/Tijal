@@ -257,9 +257,13 @@ export async function initializeDb() {
     CREATE TABLE IF NOT EXISTS site_settings (
       id INT AUTO_INCREMENT PRIMARY KEY,
       setting_key VARCHAR(100) UNIQUE NOT NULL,
-      setting_value TEXT
+      setting_value LONGTEXT
     )
   `);
+
+  try {
+    await pool.query('ALTER TABLE site_settings MODIFY COLUMN setting_value LONGTEXT');
+  } catch(e) {}
 
   const [settingsRows] = await pool.query<{count: number}[] & mysql.RowDataPacket[]>('SELECT COUNT(*) AS count FROM site_settings');
   if (settingsRows[0].count === 0) {

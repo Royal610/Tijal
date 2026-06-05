@@ -156,7 +156,7 @@ export default function ProductDetails() {
 
   if (loading) {
     return (
-      <div className="bg-slate-50 min-h-screen flex justify-center py-20">
+      <div className="bg-transparent min-h-screen flex justify-center py-20">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -164,7 +164,7 @@ export default function ProductDetails() {
 
   if (error || !product) {
     return (
-      <div className="bg-slate-50 min-h-screen py-20 text-center">
+      <div className="bg-transparent min-h-screen py-20 text-center">
         <h2 className="text-2xl font-bold text-slate-900 mb-4">{error || 'Product not found'}</h2>
         <Link to="/services" className="text-blue-600 hover:text-blue-800 flex items-center justify-center font-medium">
           <ArrowLeft className="w-5 h-5 mr-2" /> Back to Products
@@ -174,7 +174,7 @@ export default function ProductDetails() {
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
+    <div className="bg-transparent min-h-screen pb-20">
       <SEO 
         title={`${product.title} | Premium ${product.category}`}
         description={`${(product.description || '').substring(0, 160)}...`}

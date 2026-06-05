@@ -44,7 +44,7 @@ export default function Services() {
   }, []);
 
   return (
-    <div className="bg-white min-h-screen pb-20">
+    <div className="bg-transparent min-h-screen pb-20">
       <SEO 
         title="Our Premium Services | ID Cards, Banners & More"
         description="Explore our wide range of professional printing services. From corporate ID cards and high-end visiting cards to digital printing and artisanal custom gifts."

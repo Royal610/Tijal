@@ -47,7 +47,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-white overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-transparent overflow-hidden">
       <SEO 
         title="Viyomkesh Art Vision | Premium Printing, ID Cards & Branding"
         description="Experience world-class printing with Viyomkesh Art Vision. Specializing in corporate ID cards, premium visiting cards, digital printing, and custom branding solutions in Jamai Chhindwara."
@@ -182,7 +182,7 @@ export default function Home() {
       <TestimonialCarousel />
 
       {/* CTA Section */}
-      <section className="pt-[100px] pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mt-10 md:mt-16">
+      <section className="pt-12 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mt-4 md:mt-8">
         <motion.div
            initial={{ opacity: 0, scale: 0.95 }}
            whileInView={{ opacity: 1, scale: 1 }}

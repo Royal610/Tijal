@@ -31,7 +31,7 @@ export default function Testimonials() {
   }, []);
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-transparent min-h-screen">
       {/* Header */}
       <div className="bg-slate-900 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

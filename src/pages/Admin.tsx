@@ -28,26 +28,15 @@ export default function Admin() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     
-    const formData = new FormData();
-    formData.append('image', files[0]);
-    
     try {
-      setSaveStatus('Uploading image...');
-      const res = await fetch(`/api/upload?type=${type}`, {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-      if (data.url) {
-        setter(data.url);
-        setSaveStatus('Image uploaded!');
-        setTimeout(() => setSaveStatus(''), 2000);
-      } else {
-        setSaveStatus('Upload failed');
-      }
+      setSaveStatus('Processing image...');
+      const base64 = await convertToBase64(files[0]);
+      setter(base64);
+      setSaveStatus('Image attached!');
+      setTimeout(() => setSaveStatus(''), 2000);
     } catch (err) {
       console.error(err);
-      setSaveStatus('Error uploading');
+      setSaveStatus('Error attaching image');
     }
   };
 
@@ -1038,13 +1027,6 @@ export default function Admin() {
                           </div>
                         )}
                       </div>
-                      <input 
-                        type="url" 
-                        value={siteSettings.home_hero_image}
-                        onChange={(e) => setSiteSettings({...siteSettings, home_hero_image: e.target.value})}
-                        placeholder="Or enter image URL..."
-                        className="w-full px-4 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-[#F27C21] outline-none transition-all"
-                      />
                     </div>
                     
                     <div>
@@ -1064,13 +1046,6 @@ export default function Admin() {
                           </div>
                         )}
                       </div>
-                      <input 
-                        type="url" 
-                        value={siteSettings.about_hero_image}
-                        onChange={(e) => setSiteSettings({...siteSettings, about_hero_image: e.target.value})}
-                        placeholder="Or enter image URL..."
-                        className="w-full px-4 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-[#F27C21] outline-none transition-all"
-                      />
                     </div>
                   </div>
                 </div>
